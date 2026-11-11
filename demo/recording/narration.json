@@ -1,0 +1,49 @@
+{
+  "voice": "af_heart",
+  "speed": 1.0,
+  "sample_rate": 24000,
+  "tail_seconds": 0.8,
+  "segments": [
+    {
+      "id": "intro",
+      "pause_after": 0.6,
+      "text": "RealPeep is a research prototype for anonymous proof of capture. It asks whether you can prove a video came from real hardware, in a real place, without revealing which device."
+    },
+    {
+      "id": "surface",
+      "pause_after": 0.6,
+      "text": "The demo runs entirely in the browser. No server, no upload. Up top are the main demo and an advanced hash-chain view."
+    },
+    {
+      "id": "capture",
+      "pause_after": 0.6,
+      "text": "I enter a PIN, record a short clip, and stop. The certificate is built from a real frame hash chain and a simulated mesh witness. The hashing is real. The mesh here is a simulation."
+    },
+    {
+      "id": "normal",
+      "pause_after": 0.6,
+      "text": "Now the zero-knowledge pipeline. With the normal passphrase, the proof verifies, and the notary sees a clear result. No coercion flag."
+    },
+    {
+      "id": "duress",
+      "pause_after": 0.6,
+      "text": "With the duress passphrase, the captor still sees a verified proof. Only the notary sees the duress signal. That property is the point of the next slice."
+    },
+    {
+      "id": "honesty",
+      "pause_after": 0.6,
+      "text": "The current demo uses a four-bit marker, so it is not a security result. The audit documents the eight-bit Python marker, the reusable nonce, and the missing transcript binding. The next slice replaces them."
+    },
+    {
+      "id": "engineering",
+      "pause_after": 0.6,
+      "text": "The circuit is nineteen thousand constraints. The suite has two hundred ninety-two tests. The next milestone is on-device proving on a Pixel 8a, with a Moto G7 Power as the low-end floor."
+    },
+    {
+      "id": "outro",
+      "pause_after": 0.0,
+      "text": "The code, the audit, and the first failing tests are public. The next task is a transcript-bound duress tag, then on-device proving."
+    }
+  ],
+  "pre_roll_seconds": 1.0
+}

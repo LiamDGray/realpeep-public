@@ -122,6 +122,10 @@ ci: test-py test-js test-circom lint test-e2e
 ci-local:
     @bash scripts/ci-local.sh
 
+# Render the 90-second narrated demo (Kokoro-82M + Playwright + ffmpeg)
+record-demo:
+    @bash demo/recording/render.sh
+
 # Check GitHub Actions CI Status
 check-ci-status:
     gh run view $(gh run list -L 1 --json databaseId -q '.[0].databaseId') --log-failed

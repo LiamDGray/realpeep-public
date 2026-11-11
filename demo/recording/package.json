@@ -1,0 +1,12 @@
+{
+  "name": "realpeep-recording",
+  "private": true,
+  "type": "module",
+  "description": "Playwright + Kokoro pipeline for the 90-second RealPeep demo",
+  "scripts": {
+    "record": "node record_demo.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.65.0"
+  }
+}

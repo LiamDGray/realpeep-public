@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RealPeep — Verification</title>
+<style>
+  :root { color-scheme: dark; --bg:#080b12; --panel:#0f1522; --line:#22304a; --text:#eaf2ff; --muted:#8fa3c0; --accent:#00d2ff; --green:#00e676; --warn:#ffb300; }
+  * { box-sizing: border-box; }
+  html, body { height:100%; margin:0; }
+  body {
+    font-family: Inter, "DejaVu Sans", system-ui, sans-serif;
+    background:
+      radial-gradient(900px 500px at 15% 0%, rgba(0,210,255,.16), transparent 60%),
+      radial-gradient(800px 500px at 95% 100%, rgba(0,230,118,.10), transparent 60%),
+      var(--bg);
+    color: var(--text); display:grid; place-items:center; overflow:hidden; padding-bottom: 160px;
+  }
+  .wrap { width:min(1180px, 86vw); }
+  .kicker { color:var(--accent); letter-spacing:.22em; text-transform:uppercase; font-size:14px; font-weight:700; }
+  h1 { font-size:64px; line-height:1.02; margin:14px 0 10px; letter-spacing:-.03em; }
+  .sub { color:var(--muted); font-size:22px; margin:0 0 40px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:34px; }
+  .stat { background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border:1px solid var(--line); border-radius:16px; padding:22px 24px; }
+  .stat .n { font-size:40px; font-weight:800; letter-spacing:-.03em; }
+  .stat .l { color:var(--muted); font-size:14px; margin-top:4px; text-transform:uppercase; letter-spacing:.12em; }
+  .terminal { background:#05080f; border:1px solid var(--line); border-radius:16px; padding:22px 26px; font-family:"DejaVu Sans Mono", ui-monospace, monospace; font-size:18px; line-height:1.75; box-shadow:0 30px 80px rgba(0,0,0,.45); }
+  .terminal .prompt { color:var(--green); }
+  .terminal .dim { color:var(--muted); }
+  .terminal .ok { color:var(--green); }
+  .next { margin-top:26px; display:flex; gap:14px; align-items:center; color:var(--muted); font-size:19px; }
+  .pill { border:1px solid var(--line); border-radius:999px; padding:8px 14px; color:var(--text); background:rgba(255,255,255,.03); }
+  .url { color:var(--accent); font-weight:600; }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="kicker">RealPeep · verification</div>
+    <h1>Green build.<br>Honest status.</h1>
+    <p class="sub">The prototype is a research artefact, not a product. The evidence is reproducible.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">292</div><div class="l">automated tests</div></div>
+      <div class="stat"><div class="n">19,006</div><div class="l">circuit constraints</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">languages shipped</div></div>
+    </div>
+    <div class="terminal">
+      <div><span class="prompt">$</span> just ci-local</div>
+      <div class="dim">==&gt; Python 3.13.18 · Node 20.20.2 · circom 2.2.3</div>
+      <div><span class="ok">✓</span> 119 Python · 170 Jest · 3 Circom</div>
+      <div><span class="ok">✓</span> Ruff clean · Puppeteer e2e passed · CI green</div>
+    </div>
+    <div class="next">
+      <span class="pill">Next: duress v0.1</span>
+      <span class="pill">Then: on-device Groth16</span>
+      <span class="url">github.com/LiamDGray/realpeep-public</span>
+    </div>
+  </main>
+</body>
+</html>

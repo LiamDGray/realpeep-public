@@ -3,6 +3,9 @@
 **Goal:** show the two things that are actually differentiated — anonymous capture and
 duress signalling — without overclaiming what is built.
 
+> **Recorded cut:** [demo-v1 release](https://github.com/LiamDGray/realpeep-public/releases/tag/demo-v1)
+> (90.7 s, 1080p, narrated) · **Recording pipeline:** [DEMO_RECORDING.md](DEMO_RECORDING.md)
+
 **Setup (2 minutes before):**
 
 - Open <https://realpeep.pages.dev/demo/> in Chrome, 1440×900, 100% zoom.

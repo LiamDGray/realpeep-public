@@ -70,6 +70,7 @@ realpeep/
 ├── demo/                           # Interactive web simulator
 │   ├── index.html + app.js         # Main demo (liveness, mesh, DSP)
 │   ├── advanced.html + .js         # Hash chain demo
+│   ├── recording/                  # Kokoro TTS + Playwright 90-second demo
 │   └── styles.css                  # Dark theme
 │
 ├── tests/                          # Python test suite
@@ -78,7 +79,7 @@ realpeep/
 │   ├── test_blockchain_anchor.py   # 9 tests — OTS anchoring
 │   ├── test_cme.py / spci.py / hcsj.py / mnr_rollup.py
 │   ├── demo-e2e.test.js            # End-to-end browser tests
-│   └── package.json                # E2E test runner (Playwright)
+│   └── package.json                # E2E test runner (Puppeteer)
 │
 ├── platform/                       # 📱 Platform-specific clients
 │   └── android/                    # — Android app (CameraX, Kotlin)
@@ -198,6 +199,8 @@ just demo
 | [docs/research/DURESS_NOVELTY_ASSESSMENT.md](docs/research/DURESS_NOVELTY_ASSESSMENT.md) | Is the duress protocol novel / publishable? Prior art and gaps |
 | [docs/roadmap/VERTICAL_SLICES.md](docs/roadmap/VERTICAL_SLICES.md) | Build order: duress first, then on-device ZK |
 | [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) | Full implementation plan & milestones |
+| [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 90-second walkthrough (clicks + narration) |
+| [docs/DEMO_RECORDING.md](docs/DEMO_RECORDING.md) | FOSS, CPU-only recording pipeline (Kokoro + Playwright + ffmpeg) |
 | [docs/reviews/TECHNICAL_REVIEW_2026.md](docs/reviews/TECHNICAL_REVIEW_2026.md) | Codebase audit, gaps, recommendations |
 | [platform/android/](platform/android/) | Android app — CameraX capture, frame hash chain, audio recording |
 
