@@ -130,6 +130,7 @@ just ci
 | Frame hash chain / Merkle tree | **Tested** |
 | Duress key derivation | **Demo-grade**; known flaws documented, no notary service |
 | Web demo | **Live**; simulated capture and mesh |
+| Browser-camera preview | **Optional UI preview only**; labelled not attested; falls back to simulation |
 | Android app | **Scaffold**; not in CI, no on-device proving benchmark yet |
 | On-device ZK proving | **Not built** |
 | Real-time phone audio capture | **Not built** |

@@ -1576,6 +1576,59 @@ td.matrix-diag { background: transparent; color: var(--text-muted); }
     position: absolute;
     inset: 0;
     pointer-events: none;
+    z-index: 3;
+}
+
+/* Optional browser-camera preview inside the simulated phone. This is a
+   preview only; the label is deliberately visible and the frame is never
+   used as hardware attestation. */
+.phone-camera {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    z-index: 1;
+    background: #000;
+    transform: scaleX(-1);
+}
+
+.phone-camera.camera-active {
+    display: block;
+}
+
+.phone-camera-freeze {
+    transform: none;
+    z-index: 2;
+}
+
+.camera-note {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 5px;
+    z-index: 6;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.62);
+    color: rgba(255, 255, 255, 0.82);
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 8.5px;
+    line-height: 1.3;
+    text-align: center;
+    letter-spacing: 0.01em;
+    white-space: pre-line;
+    pointer-events: none;
+}
+
+.camera-note[hidden] {
+    display: none;
+}
+
+.camera-note-sticky {
+    background: rgba(0, 0, 0, 0.72);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .vf-corners {
@@ -1646,6 +1699,7 @@ td.matrix-diag { background: transparent; color: var(--text-muted); }
     border-radius: 8px;
     pointer-events: none;
     transition: border-color 0.3s;
+    z-index: 4;
 }
 
 .recording-pulse.pulsing {

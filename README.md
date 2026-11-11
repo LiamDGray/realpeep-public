@@ -17,7 +17,8 @@ The only thing it proves is physics — and physics can't be faked.
 > - **Tested:** Circom identity-scrubber circuit (19k constraints), Python/JS DSP and
 >   Gold-code primitives, frame hash chain, duress key derivation (demo-grade), web demo.
 > - **Simulated / demo-only:** acoustic and BLE mesh, duress notary detection (there is no
->   notary service yet), C2PA interop.
+>   notary service yet), C2PA interop, and the optional browser-camera preview in the
+>   simulated phone (labelled “not hardware-attested”).
 > - **Not built:** on-device ZK proving, real-time acoustic capture on phones, blockchain
 >   bridge, production Android capture pipeline, audited duress deployment.
 >

@@ -57,6 +57,10 @@ export function mountWitnessPane(container, callbacks = {}) {
                 <div class="phone-notch"></div>
                 <!-- Viewfinder -->
                 <div class="phone-viewfinder" id="witness-viewfinder">
+                    <!-- Optional browser-camera preview. This is NOT hardware
+                         attestation; it is a local UI preview with a visible label. -->
+                    <video class="phone-camera" id="witness-camera" playsinline muted autoplay></video>
+                    <canvas class="phone-camera phone-camera-freeze" id="witness-camera-freeze" hidden></canvas>
                     <div class="viewfinder-overlay">
                         <div class="vf-corners">
                             <div class="vf-corner vf-tl"></div>
@@ -71,6 +75,7 @@ export function mountWitnessPane(container, callbacks = {}) {
                         </div>
                         <div class="vf-scanline"></div>
                     </div>
+                    <div class="camera-note" id="camera-note" hidden></div>
                     <!-- Recording animation overlay -->
                     <div class="recording-pulse" id="recording-pulse"></div>
                 </div>
@@ -155,6 +160,9 @@ export function mountWitnessPane(container, callbacks = {}) {
     const recordingPulse = container.querySelector('#recording-pulse');
     const stepBar = container.querySelector('#phone-step-bar');
     const viewfinder = container.querySelector('#witness-viewfinder');
+    const cameraVideo = container.querySelector('#witness-camera');
+    const cameraFreeze = container.querySelector('#witness-camera-freeze');
+    const cameraNote = container.querySelector('#camera-note');
     const statusBle = container.querySelector('#status-ble');
     const statusAudio = container.querySelector('#status-audio');
     const statusFrames = container.querySelector('#status-frames');
@@ -166,6 +174,11 @@ export function mountWitnessPane(container, callbacks = {}) {
     let pinDigits = '';
     let isRecording = false;
     let isDuress = false;
+    const cameraMode = new URLSearchParams(window.location.search).get('camera') || 'auto';
+    let cameraStream = null;
+    let cameraRequestId = 0;
+    let cameraActive = false;
+    let cameraNoteTimer = null;
     let audioCtx = null;
     let audioSource = null;
     let currentAudioBuffer = null;
@@ -217,6 +230,149 @@ export function mountWitnessPane(container, callbacks = {}) {
         }
     }
 
+    // ── Optional browser-camera preview ───────────────────────────
+    //
+    // The simulated phone can show the local webcam while "recording". It is a
+    // UI preview only: it is explicitly labelled, and it is never used as a
+    // hardware attestation or as evidence in the certificate. If the camera is
+    // unavailable (headless CI, permission denied, no device), the original
+    // simulated viewfinder is used.
+
+    function clearCameraNote() {
+        if (cameraNoteTimer) {
+            clearTimeout(cameraNoteTimer);
+            cameraNoteTimer = null;
+        }
+        cameraNote.hidden = true;
+        cameraNote.textContent = '';
+        cameraNote.classList.remove('camera-note-sticky');
+    }
+
+    function setCameraNote(text, { sticky = false } = {}) {
+        if (cameraNoteTimer) {
+            clearTimeout(cameraNoteTimer);
+            cameraNoteTimer = null;
+        }
+        cameraNote.textContent = text;
+        cameraNote.hidden = false;
+        cameraNote.classList.toggle('camera-note-sticky', sticky);
+        if (!sticky) {
+            cameraNoteTimer = setTimeout(() => {
+                cameraNote.hidden = true;
+                cameraNoteTimer = null;
+            }, 3500);
+        }
+    }
+
+    function stopCameraTracks() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach((track) => track.stop());
+            cameraStream = null;
+        }
+        if (cameraVideo.srcObject) {
+            cameraVideo.srcObject = null;
+        }
+    }
+
+    async function startCameraPreview() {
+        // `?camera=off` keeps the deterministic recording/CI cut free of
+        // permission prompts and fallback notes. The default is `auto`.
+        if (cameraMode === 'off') return false;
+        const requestId = ++cameraRequestId;
+        stopCameraTracks();
+        cameraActive = false;
+        cameraVideo.classList.remove('camera-active');
+        cameraFreeze.classList.remove('camera-active');
+        cameraFreeze.hidden = true;
+
+        if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+            setCameraNote('Camera unavailable — using simulated view');
+            return false;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                },
+                audio: false,
+            });
+
+            // The user may have pressed Stop while the permission prompt was
+            // open, or a newer request may have superseded this one.
+            if (requestId !== cameraRequestId || !isRecording) {
+                stream.getTracks().forEach((track) => track.stop());
+                return false;
+            }
+
+            cameraStream = stream;
+            cameraVideo.srcObject = stream;
+            await cameraVideo.play();
+
+            if (requestId !== cameraRequestId || !isRecording) {
+                stopCameraTracks();
+                return false;
+            }
+
+            cameraVideo.classList.add('camera-active');
+            cameraActive = true;
+            setCameraNote('Browser camera — preview only\nNot hardware-attested', { sticky: true });
+            return true;
+        } catch (error) {
+            stopCameraTracks();
+            cameraActive = false;
+            if (requestId === cameraRequestId) {
+                setCameraNote('Camera unavailable — using simulated view');
+            }
+            return false;
+        }
+    }
+
+    function freezeCameraFrame() {
+        if (!cameraActive || !cameraVideo.videoWidth) {
+            stopCameraTracks();
+            cameraVideo.classList.remove('camera-active');
+            return;
+        }
+
+        const width = cameraVideo.videoWidth;
+        const height = cameraVideo.videoHeight;
+        cameraFreeze.width = width;
+        cameraFreeze.height = height;
+        const context = cameraFreeze.getContext('2d');
+        if (context) {
+            // Mirror the selfie preview so the frozen frame matches what the
+            // user saw on screen.
+            context.save();
+            context.translate(width, 0);
+            context.scale(-1, 1);
+            context.drawImage(cameraVideo, 0, 0, width, height);
+            context.restore();
+        }
+        cameraFreeze.hidden = false;
+        cameraFreeze.classList.add('camera-active');
+        cameraVideo.classList.remove('camera-active');
+        cameraActive = false;
+        stopCameraTracks();
+        setCameraNote('Captured browser frame — preview only\nNot hardware-attested', { sticky: true });
+    }
+
+    function stopCameraPreview({ freeze = false } = {}) {
+        cameraRequestId += 1;
+        if (freeze) {
+            freezeCameraFrame();
+        } else {
+            stopCameraTracks();
+            cameraVideo.classList.remove('camera-active');
+            cameraFreeze.classList.remove('camera-active');
+            cameraFreeze.hidden = true;
+            clearCameraNote();
+        }
+        cameraActive = false;
+    }
+
     // ── Record controls ────────────────────────────────────────────
 
     recordBtn.addEventListener('click', () => {
@@ -230,6 +386,7 @@ export function mountWitnessPane(container, callbacks = {}) {
         updateStep('capture', 'active');
         if (badge2) badge2.style.display = 'none';
         if (badge3) badge3.style.display = 'flex';
+        void startCameraPreview();
         onRecord();
     });
 
@@ -249,6 +406,7 @@ export function mountWitnessPane(container, callbacks = {}) {
             pinInstruction.style.color = 'rgba(0,230,118,0.9)';
             pinInstruction.innerHTML = '⏳ Processing… See results in the right panel →';
         }
+        stopCameraPreview({ freeze: true });
         stopAudioPlayback();
         onStop().then(() => {
             if (pinInstruction) {
@@ -396,10 +554,12 @@ export function mountWitnessPane(container, callbacks = {}) {
                 recordingIndicator.classList.add('recording-active');
                 recordingPulse.classList.add('pulsing');
                 viewfinder.classList.add('viewfinder-recording');
+                void startCameraPreview();
             } else {
                 recordingIndicator.classList.remove('recording-active');
                 recordingPulse.classList.remove('pulsing');
                 viewfinder.classList.remove('viewfinder-recording');
+                stopCameraPreview({ freeze: true });
             }
         },
 
@@ -431,12 +591,14 @@ export function mountWitnessPane(container, callbacks = {}) {
                 s.classList.remove('phone-step-active', 'phone-step-done');
             });
             updateStep('pin', 'active');
+            stopCameraPreview();
             stopAudioPlayback();
             currentAudioBuffer = null;
             updateStatus({ bleCount: 0, audioStatus: 'idle', frameCount: 0 });
         },
 
         destroy() {
+            stopCameraPreview();
             stopAudioPlayback();
             if (audioCtx) {
                 try { audioCtx.close(); } catch (e) { /* ignore */ }

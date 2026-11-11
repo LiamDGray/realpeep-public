@@ -12,6 +12,8 @@ duress signalling — without overclaiming what is built.
 - Close other tabs and notifications; mute system audio.
 - Make sure the page is fully loaded and the PIN pad is visible.
 - Have a terminal ready with the repo at `master` and `just ci-local` already run once.
+- If you do not want your face in the recording, deny the camera prompt; the phone
+  falls back to the simulated view. The recorded `demo-v1` cut uses `?camera=off`.
 - Do **not** run the acoustic mesh or claim the mesh is real hardware.
 
 ---
@@ -36,8 +38,9 @@ duress signalling — without overclaiming what is built.
 - Click PIN keys **1 2 3 4**.
 - Click **Record**, wait one second, click **Stop**.
 - Let the certificate card appear.
-- Say: “This is the capture/hash-chain flow. The mesh certificate here is simulated; the
-  frame hash chain and the verifier are real code.”
+- Say: “This is the capture/hash-chain flow. If the browser camera is available, the
+  phone shows a live preview — labelled as not hardware-attested. The mesh certificate
+  is simulated; the frame hash chain and the verifier are real code.”
 
 ---
 

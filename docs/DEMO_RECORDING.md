@@ -145,6 +145,23 @@ exactly the viewport, works headless under Xvfb/CI, and does not capture desktop
 notifications. It does **not** draw the OS cursor, so the recorder injects a CSS
 cursor and click ripple via `addInitScript`; the same script adds the lower-thirds.
 
+**Browser camera in the simulated phone:** when the phone pane is told to record,
+it calls `getUserMedia({ video: true, audio: false })` and shows the local camera
+inside the simulated phone. This is a **preview only**:
+
+- The pane displays `Browser camera · preview only · not hardware-attested`.
+- The frame is **not** fed into the TEE signature, the mesh, or the certificate.
+- If the camera is missing, denied, or the page is not a secure context, it falls
+  back to the original simulated viewfinder; the label says so.
+- On stop, the last frame is frozen on screen and the tracks are stopped.
+- `?camera=off` disables the camera entirely (no prompt, no fallback note). The
+  Playwright recorder uses this for the deterministic cut.
+- `?camera=auto` is the default for a live demo.
+- To exercise the camera path deterministically, use Chromium's fake device:
+  `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream`.
+- Do **not** publish a recording containing a real face or room without consent.
+  The published `demo-v1` cut uses the simulated fallback on purpose.
+
 **Full desktop or terminal:** use OBS Studio (interactive, GPL-2.0), `wf-recorder`
 on Wayland, or `ffmpeg -f x11grab` on X11. For terminal-only segments, record with
 `asciinema` and render to GIF/MP4 with `agg`; do not fake a terminal in HTML. The

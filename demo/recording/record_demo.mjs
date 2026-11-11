@@ -189,7 +189,7 @@ async function scrollTo(selector) {
     await page.waitForTimeout(650);
 }
 
-await page.goto(`${baseUrl}/demo/`, { waitUntil: 'load', timeout: 30000 });
+await page.goto(`${baseUrl}/demo/?camera=off`, { waitUntil: 'load', timeout: 30000 });
 await page.waitForSelector('#pin-instruction', { timeout: 15000 });
 await page.emulateMedia({ reducedMotion: 'no-preference' });
 
