@@ -1,0 +1,18 @@
+{
+    "genuine_physical_presence": {
+        "passed": true,
+        "measured_delay_ms": 1.7291666666666665,
+        "expected_delay_ms": 1.749271137026239,
+        "difference_ms": 0.020104470359572524,
+        "tolerance_ms": 0.25,
+        "reason": "Acoustic time-of-flight verified successfully."
+    },
+    "digital_injection_attack": {
+        "passed": false,
+        "measured_delay_ms": 9.395833333333334,
+        "expected_delay_ms": 1.749271137026239,
+        "difference_ms": 7.646562196307094,
+        "tolerance_ms": 0.25,
+        "reason": "Acoustic delay exceeds physical limit. Expected 1.749 ms (at 30.0cm), but peak arrived at 9.396 ms (Difference: +7.647 ms). Indicates digital stream injection latency."
+    }
+}

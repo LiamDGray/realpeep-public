@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RealPeep Architecture Diagram</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'JetBrains Mono', monospace; background: #020617; min-height: 100vh; padding: 2rem; color: white; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 2rem; }
+    h1 { font-size: 1.5rem; font-weight: 700; }
+    .pulse-dot { display: inline-block; width: 8px; height: 8px; background: #22d3ee; border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+    .subtitle { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+    .diagram-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .diagram-card h2 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+    svg { width: 100%; height: auto; display: block; }
+    .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #1e293b; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.65rem; color: #94a3b8; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid; }
+    .legend-swatch.implemented { background: rgba(0, 230, 118, 0.3); border-color: #00e676; }
+    .legend-swatch.partial { background: rgba(255, 145, 0, 0.3); border-color: #ff9100; }
+    .legend-swatch.planned { background: rgba(148, 163, 184, 0.2); border-color: #94a3b8; }
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 1rem; }
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.cyan { background: #22d3ee; }
+    .card-dot.green { background: #34d399; }
+    .card-dot.rose { background: #fb7185; }
+    .card h3 { font-size: 0.75rem; font-weight: 600; }
+    .card ul { list-style: none; }
+    .card ul li { font-size: 0.65rem; color: #94a3b8; padding: 0.15rem 0; }
+    footer { text-align: center; font-size: 0.6rem; color: #475569; margin-top: 1rem; }
+    text.implemented { fill: #00e676; }
+    text.partial { fill: #ff9100; }
+    text.planned { fill: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span class="pulse-dot"></span>RealPeep Architecture</h1>
+      <div class="subtitle">Anonymous Video Provenance &amp; Mesh Consensus — Implementation Status Map</div>
+    </header>
+
+    <!-- ===== LAYER 1: CAPTURE TIME ===== -->
+    <div class="diagram-card">
+      <h2>Layer 1 — Capture-Time Defenses (On-Device)</h2>
+      <svg viewBox="0 0 1200 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+          <marker id="arrow-cy" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+          </marker>
+          <marker id="arrow-em" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/>
+          </marker>
+        </defs>
+        <rect width="1200" height="320" fill="url(#grid)"/>
+
+        <!-- Camera Sensor -->
+        <rect x="40" y="40" width="180" height="80" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <rect x="40" y="40" width="180" height="80" rx="6" fill="#0f172a" opacity="0.01"/>
+        <rect x="40" y="40" width="180" height="80" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="130" y="75" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">Camera Sensor</text>
+        <text x="130" y="90" text-anchor="middle" fill="#94a3b8" font-size="7">Video Capture + Shutter</text>
+        <text x="130" y="103" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+
+        <!-- CME -->
+        <rect x="40" y="140" width="180" height="70" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="130" y="167" text-anchor="middle" fill="#34d399" font-size="9" font-weight="600">CME Verifier</text>
+        <text x="130" y="182" text-anchor="middle" fill="#94a3b8" font-size="7">Cross-Modal Entanglement</text>
+        <text x="130" y="197" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+
+        <!-- SPCI -->
+        <rect x="260" y="140" width="180" height="70" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="350" y="167" text-anchor="middle" fill="#34d399" font-size="9" font-weight="600">SPCI Verifier</text>
+        <text x="350" y="182" text-anchor="middle" fill="#94a3b8" font-size="7">Cryptographic Illumination</text>
+        <text x="350" y="197" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+
+        <!-- HCSJ -->
+        <rect x="480" y="140" width="180" height="70" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="570" y="167" text-anchor="middle" fill="#34d399" font-size="9" font-weight="600">HCSJ Verifier</text>
+        <text x="570" y="182" text-anchor="middle" fill="#94a3b8" font-size="7">Shutter Jitter (Analog Hole)</text>
+        <text x="570" y="197" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+
+        <!-- Frame Hash Chain -->
+        <rect x="260" y="40" width="250" height="80" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="385" y="70" text-anchor="middle" fill="#22d3ee" font-size="9" font-weight="600">Frame-Level Hash Chain</text>
+        <text x="385" y="85" text-anchor="middle" fill="#94a3b8" font-size="7">Per-frame SHA-256 → Merkle Tree</text>
+        <text x="385" y="98" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED (demo+lib) ]</text>
+
+        <!-- Audio Mic -->
+        <rect x="700" y="40" width="180" height="80" rx="6" fill="rgba(251,146,60,0.3)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="790" y="75" text-anchor="middle" fill="#fb923c" font-size="9" font-weight="600">Microphone Array</text>
+        <text x="790" y="90" text-anchor="middle" fill="#94a3b8" font-size="7">Raw Acoustic Capture</text>
+        <text x="790" y="103" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+
+        <!-- Secure Enclave -->
+        <rect x="700" y="140" width="180" height="70" rx="6" fill="rgba(136,19,55,0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="790" y="167" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="600">Secure Enclave (TEE)</text>
+        <text x="790" y="182" text-anchor="middle" fill="#94a3b8" font-size="7">Hardware Root of Trust</text>
+        <text x="790" y="197" text-anchor="middle" fill="#ff9100" font-size="7">[ MOCK IMPLEMENTED ]</text>
+
+        <!-- ZK Identity Scrubber -->
+        <rect x="920" y="40" width="240" height="80" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="1040" y="70" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="600">ZK Identity Scrubber</text>
+        <text x="1040" y="85" text-anchor="middle" fill="#94a3b8" font-size="7">Circom circuit (scrubber.circom)</text>
+        <text x="1040" y="98" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+
+        <!-- Duress Key Derivation -->
+        <rect x="920" y="140" width="240" height="70" rx="6" fill="rgba(148,163,184,0.2)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <text x="1040" y="167" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">Duress Key Derivation</text>
+        <text x="1040" y="182" text-anchor="middle" fill="#94a3b8" font-size="7">[ PLANNED — Phase 3a ]</text>
+
+        <!-- Arrows: sensor → hash chain -->
+        <line x1="220" y1="80" x2="255" y2="80" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrow-cy)"/>
+        <!-- Arrows: sensor → CME -->
+        <line x1="130" y1="120" x2="130" y2="136" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-em)"/>
+
+        <!-- Arrows: audio → mesh -->
+        <line x1="790" y1="120" x2="790" y2="136" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- Arrows: enclave → ZK -->
+        <line x1="880" y1="175" x2="916" y2="175" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
+      </svg>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch implemented"></div> Fully Implemented</div>
+        <div class="legend-item"><div class="legend-swatch partial"></div> Partially / Mocked</div>
+        <div class="legend-item"><div class="legend-swatch planned"></div> Planned / Not Started</div>
+      </div>
+    </div>
+
+    <!-- ===== LAYER 2: ACOUSTIC MESH ===== -->
+    <div class="diagram-card">
+      <h2>Layer 2 — Acoustic CDMA Mesh (Offline Witness Consensus)</h2>
+      <svg viewBox="0 0 1200 320" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="grid2" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern>
+          <marker id="arr-em2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/></marker>
+          <marker id="arr-rose2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#fb7185"/></marker>
+        </defs>
+        <rect width="1200" height="320" fill="url(#grid2)"/>
+
+        <!-- Device A -->
+        <rect x="40" y="30" width="200" height="130" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="140" y="58" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">Device A (Broadcaster)</text>
+        <text x="140" y="73" text-anchor="middle" fill="#94a3b8" font-size="7">Ephemeral Key Pair (Ed25519)</text>
+        <text x="140" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Attestation Log + Chain Hash</text>
+        <text x="140" y="108" text-anchor="middle" fill="#00e676" font-size="7">[ DSP: IMPLEMENTED ]</text>
+        <text x="140" y="123" text-anchor="middle" fill="#ff9100" font-size="7">[ Heartbeat: DEMO ONLY ]</text>
+        <text x="140" y="138" text-anchor="middle" fill="#94a3b8" font-size="7">[ Bloom Filter: PLAN ]</text>
+        <text x="140" y="150" text-anchor="middle" fill="#94a3b8" font-size="7">[ Decentralized CDMA: PLAN ]</text>
+
+        <!-- Device B -->
+        <rect x="500" y="30" width="200" height="130" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="600" y="58" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">Device B (Witness)</text>
+        <text x="600" y="73" text-anchor="middle" fill="#94a3b8" font-size="7">Ephemeral Key Pair (Ed25519)</text>
+        <text x="600" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Attestation Log + Chain Hash</text>
+        <text x="600" y="108" text-anchor="middle" fill="#00e676" font-size="7">[ DSP: IMPLEMENTED ]</text>
+        <text x="600" y="123" text-anchor="middle" fill="#ff9100" font-size="7">[ Heartbeat: DEMO ONLY ]</text>
+        <text x="600" y="138" text-anchor="middle" fill="#94a3b8" font-size="7">[ Bloom Filter: PLAN ]</text>
+        <text x="600" y="150" text-anchor="middle" fill="#94a3b8" font-size="7">[ Decentralized CDMA: PLAN ]</text>
+
+        <!-- Device C -->
+        <rect x="960" y="30" width="200" height="130" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="1060" y="58" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">Device C (Witness)</text>
+        <text x="1060" y="73" text-anchor="middle" fill="#94a3b8" font-size="7">Ephemeral Key Pair (Ed25519)</text>
+        <text x="1060" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Attestation Log + Chain Hash</text>
+        <text x="1060" y="108" text-anchor="middle" fill="#ff9100" font-size="7">[ DEMO FRAMEWORK ONLY ]</text>
+        <text x="1060" y="123" text-anchor="middle" fill="#94a3b8" font-size="7">[ Not in main demo yet ]</text>
+        <text x="1060" y="138" text-anchor="middle" fill="#94a3b8" font-size="7">[ Multi-round MNR: PLAN ]</text>
+
+        <!-- Acoustic Channel -->
+        <rect x="250" y="30" width="240" height="60" rx="6" fill="rgba(251,146,60,0.15)" stroke="#fb923c" stroke-width="1" stroke-dasharray="6,3"/>
+        <text x="370" y="58" text-anchor="middle" fill="#fb923c" font-size="8" font-weight="600">Acoustic Channel (18–22 kHz)</text>
+        <text x="370" y="73" text-anchor="middle" fill="#94a3b8" font-size="7">CDMA: ~4–15 bps | SF=128–1024</text>
+
+        <!-- Arrows between devices -->
+        <line x1="240" y1="95" x2="495" y2="95" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr-em2)"/>
+        <line x1="495" y1="110" x2="240" y2="110" stroke="#fb923c" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr-rose2)"/>
+        <text x="368" y="85" text-anchor="middle" fill="#94a3b8" font-size="6">Phase 1: Beacon</text>
+        <text x="368" y="120" text-anchor="middle" fill="#94a3b8" font-size="6">Phase 3: Ack</text>
+
+        <line x1="700" y1="95" x2="955" y2="95" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr-em2)"/>
+        <text x="828" y="85" text-anchor="middle" fill="#94a3b8" font-size="6">Phase 1: Beacon</text>
+
+        <!-- MNR Protocol Box -->
+        <rect x="250" y="180" width="700" height="60" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1"/>
+        <text x="600" y="200" text-anchor="middle" fill="#34d399" font-size="9" font-weight="600">MNR Protocol — 4-Round Asynchronous Exchange</text>
+        <text x="600" y="215" text-anchor="middle" fill="#94a3b8" font-size="7">[1] Presence → [2] Reception → [3] Ack (Signed Receipt) → [4] Chain Hash Cross-Linking</text>
+        <text x="600" y="232" text-anchor="middle" fill="#ff9100" font-size="7">[ PROTOCOL SPEC WRITTEN — Multi-round demo NOT YET IMPLEMENTED ]</text>
+
+        <!-- Distance Computation -->
+        <rect x="40" y="180" width="200" height="60" rx="6" fill="rgba(76,29,149,0.3)" stroke="#a78bfa" stroke-width="1"/>
+        <text x="140" y="202" text-anchor="middle" fill="#a78bfa" font-size="8" font-weight="600">Round-Trip Distance</text>
+        <text x="140" y="218" text-anchor="middle" fill="#94a3b8" font-size="7">(tᵣₐ−t_claimed) × speed_of_sound</text>
+        <text x="140" y="233" text-anchor="middle" fill="#00e676" font-size="7">[ FORMULA DERIVED ]</text>
+
+        <!-- Heartbeat -->
+        <rect x="960" y="180" width="200" height="60" rx="6" fill="rgba(148,163,184,0.2)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <text x="1060" y="202" text-anchor="middle" fill="#94a3b8" font-size="8" font-weight="600">Timed Heartbeat Protocol</text>
+        <text x="1060" y="218" text-anchor="middle" fill="#94a3b8" font-size="7">Automatic escalation on expiry</text>
+        <text x="1060" y="233" text-anchor="middle" fill="#94a3b8" font-size="7">[ PLANNED — Phase 3c ]</text>
+
+        <!-- Offline Storage -->
+        <rect x="40" y="260" width="1120" height="50" rx="6" fill="rgba(30,41,59,0.4)" stroke="#94a3b8" stroke-width="1"/>
+        <text x="600" y="280" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">Offline Storage: Each device stores signed append-only log (chain hash + attestations + bloom filter)</text>
+        <text x="600" y="296" text-anchor="middle" fill="#00e676" font-size="7">[ LOCAL LOG: IMPLEMENTED ] — [ STEGANOGRAPHIC HIDING: PLANNED (Phase 5) ]</text>
+      </svg>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch implemented"></div> Fully Implemented</div>
+        <div class="legend-item"><div class="legend-swatch partial"></div> Demo Only / Spec Written</div>
+        <div class="legend-item"><div class="legend-swatch planned"></div> Planned / Not Started</div>
+      </div>
+    </div>
+
+    <!-- ===== LAYER 3: ONLINE ROLLUP ===== -->
+    <div class="diagram-card">
+      <h2>Layer 3 — Online Rollup &amp; Blockchain Anchoring</h2>
+      <svg viewBox="0 0 1200 260" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="grid3" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern></defs>
+        <rect width="1200" height="260" fill="url(#grid3)"/>
+
+        <!-- Devices upload -->
+        <rect x="40" y="40" width="160" height="80" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="120" y="70" text-anchor="middle" fill="#22d3ee" font-size="9" font-weight="600">Device Upload</text>
+        <text x="120" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Mesh attestation bundle</text>
+        <text x="120" y="103" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+
+        <!-- Notary -->
+        <rect x="320" y="40" width="200" height="80" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="420" y="70" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="600">MNR Notary Server</text>
+        <text x="420" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Cross-reference + Certificate</text>
+        <text x="420" y="103" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED (Python) ]</text>
+
+        <!-- Duress Detection -->
+        <rect x="320" y="140" width="200" height="70" rx="6" fill="rgba(148,163,184,0.2)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <text x="420" y="165" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">Duress Detection</text>
+        <text x="420" y="180" text-anchor="middle" fill="#94a3b8" font-size="7">[ PLANNED — Phase 3b ]</text>
+
+        <!-- Blockchain -->
+        <rect x="640" y="40" width="240" height="80" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="760" y="70" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="600">Public Blockchain Anchor</text>
+        <text x="760" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Bitcoin OP_RETURN / Eth calldata</text>
+        <text x="760" y="103" text-anchor="middle" fill="#94a3b8" font-size="7">[ PLANNED — Phase 4 ]</text>
+
+        <!-- Optimistic Rollup -->
+        <rect x="640" y="140" width="240" height="70" rx="6" fill="rgba(148,163,184,0.2)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <text x="760" y="165" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">Smart Contract TTP</text>
+        <text x="760" y="180" text-anchor="middle" fill="#94a3b8" font-size="7">[ PLANNED — Phase 4.5 ]</text>
+
+        <!-- Verification Tool -->
+        <rect x="960" y="40" width="200" height="80" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="1060" y="70" text-anchor="middle" fill="#22d3ee" font-size="9" font-weight="600">Public Verifier</text>
+        <text x="1060" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Video + hash chain → check root</text>
+        <text x="1060" y="103" text-anchor="middle" fill="#94a3b8" font-size="7">[ PLANNED — Phase 4 ]</text>
+
+        <!-- Arrows -->
+        <line x1="200" y1="80" x2="316" y2="80" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr-em2)"/>
+        <line x1="520" y1="80" x2="636" y2="80" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr-em2)"/>
+        <line x1="420" y1="120" x2="420" y2="136" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
+      </svg>
+    </div>
+
+    <!-- ===== INFO CARDS ===== -->
+    <div class="info-grid">
+      <div class="card">
+        <div class="card-header"><div class="card-dot cyan"></div><h3>Primary Defenses</h3></div>
+        <ul>
+          <li>• ZK Identity Scrubber (Circom) — ✅ done</li>
+          <li>• Frame-level Hash Chain — ✅ done</li>
+          <li>• CME / SPCI / HCSJ verifiers — ✅ done</li>
+          <li>• Acoustic CDMA DSP engine — ✅ done</li>
+          <li>• Duress key derivation — ⏳ planned</li>
+          <li>• Halo2/Nova mobile prover — ⏳ planned</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot green"></div><h3>Mesh Consensus</h3></div>
+        <ul>
+          <li>• MNR protocol spec — ✅ written</li>
+          <li>• MNR server (Python) — ✅ done</li>
+          <li>• Multi-round demo — ⏳ planned</li>
+          <li>• Decentralized CDMA codes — ⏳ planned</li>
+          <li>• Bloom filter — ⏳ planned</li>
+          <li>• Heartbeat protocol — ⏳ planned</li>
+          <li>• Smart contract TTP — ⏳ planned</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot rose"></div><h3>Critical Gaps</h3></div>
+        <ul>
+          <li>• ⚠ No real-time acoustic hardware bridge</li>
+          <li>• ⚠ No blockchain tx submission code</li>
+          <li>• ⚠ No production ZK prover (Halo2/Nova)</li>
+          <li>• ⚠ No mobile app (iOS/Android)</li>
+          <li>• ⚠ No steganographic storage impl</li>
+          <li>• ⚠ No duress key derivation impl</li>
+          <li>• ⚠ No multi-notary threshold setup</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ===== LAYER 4: BLE MESH ===== -->
+    <div class="diagram-card">
+      <h2>Layer 4 — BLE Radio Mesh (Transmit-Only, Many-to-Many)</h2>
+      <svg viewBox="0 0 1200 260" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="grid4" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/></pattern></defs>
+        <rect width="1200" height="260" fill="url(#grid4)"/>
+        <rect x="40" y="30" width="200" height="100" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="140" y="58" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">N Devices</text>
+        <text x="140" y="73" text-anchor="middle" fill="#94a3b8" font-size="7">Each: pk + nonce + mesh_id + sig</text>
+        <text x="140" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Bloom filter of heard nonces</text>
+        <text x="140" y="105" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+        <rect x="500" y="30" width="200" height="100" rx="6" fill="rgba(251,146,60,0.15)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="600" y="58" text-anchor="middle" fill="#fb923c" font-size="9" font-weight="600">BLE Simulator</text>
+        <text x="600" y="73" text-anchor="middle" fill="#94a3b8" font-size="7">Swappable with real BlueZ</text>
+        <text x="600" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Noise model + range filtering</text>
+        <text x="600" y="105" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+        <rect x="870" y="30" width="280" height="100" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="1010" y="58" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="600">HybridVerifier</text>
+        <text x="1010" y="73" text-anchor="middle" fill="#94a3b8" font-size="7">Phase 1: BLE bloom (25ms)</text>
+        <text x="1010" y="88" text-anchor="middle" fill="#94a3b8" font-size="7">Phase 2: Acoustic audit (14s)</text>
+        <text x="1010" y="105" text-anchor="middle" fill="#00e676" font-size="7">[ IMPLEMENTED ]</text>
+        <rect x="870" y="155" width="280" height="60" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1010" y="180" text-anchor="middle" fill="#fbbf24" font-size="8" font-weight="600">GroupMNR Certificate</text>
+        <text x="1010" y="198" text-anchor="middle" fill="#94a3b8" font-size="7">Provisional (P1) → Final (P2+P3)</text>
+        <line x1="240" y1="80" x2="495" y2="80" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arr-em2)"/>
+        <line x1="700" y1="80" x2="865" y2="80" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr-em2)"/>
+      </svg>
+    </div>
+
+    <footer>RealPeep Architecture Map — Generated 2026 | Green = Implemented, Orange = Demo/Mocked, Gray = Planned</footer>
+  </div>
+</body>
+</html>

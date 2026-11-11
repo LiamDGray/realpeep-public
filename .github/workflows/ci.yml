@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# A new push to the same branch cancels the previous, superseded run. This keeps
+# private-repo minutes from being spent on commits that are already obsolete.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: just install
+
+      - name: Install Circom
+        run: |
+          wget -qO circom https://github.com/iden3/circom/releases/latest/download/circom-linux-amd64
+          chmod +x circom
+          sudo mv circom /usr/local/bin/
+
+      - name: Full test suite
+        run: just ci

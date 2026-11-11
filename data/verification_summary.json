@@ -1,0 +1,27 @@
+{
+    "real_human": {
+        "passed": true,
+        "liveness_score": 0.9794382894559494,
+        "reason": "All security layers verified successfully."
+    },
+    "decoupled_digital_injection": {
+        "passed": false,
+        "liveness_score": 0.39407685123014335,
+        "reason": "CME: Cross-modal decoupling detected: audio/video delta is 33.71ms (threshold: 1.0ms).; SPCI: Rendering latency too high: 16.67ms > 8.0ms"
+    },
+    "analog_hole_monitor": {
+        "passed": false,
+        "liveness_score": 0.38133488746466815,
+        "reason": "SPCI: Rendering latency too high: 8.33ms > 8.0ms; HCSJ: Monitor re-projection detected: Jitter variance is 0.0805 (threshold: 0.05); ACCR: Low correlation (0.49 < 0.60). Possible replay attack or mismatch."
+    },
+    "deepfake_latency": {
+        "passed": false,
+        "liveness_score": 0.6,
+        "reason": "SPCI: Reflection correlation too low: 0.00 < 0.8; ACCR: Low correlation (0.00 < 0.60). Possible replay attack or mismatch.; rPPG: At least two facial regions are required for coherence check.; PLR: Static pupil detected. Indicates static image, video replay, or non-reactive artificial eye."
+    },
+    "static_photo_replay": {
+        "passed": false,
+        "liveness_score": 0.6,
+        "reason": "SPCI: Reflection correlation too low: 0.00 < 0.8; ACCR: Low correlation (0.00 < 0.60). Possible replay attack or mismatch.; rPPG: At least two facial regions are required for coherence check.; PLR: Static pupil detected. Indicates static image, video replay, or non-reactive artificial eye."
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "realpeep-demo-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node duress-core.test.js",
+    "test-all": "node duress-core.test.js && node demo-integration.test.js",
+    "test-core": "node duress-core.test.js",
+    "test-integration": "node demo-integration.test.js",
+    "test-e2e": "node demo-e2e.test.js"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.3.0"
+  }
+}

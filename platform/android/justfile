@@ -1,0 +1,72 @@
+# RealPeep Android — Task Runner
+# https://github.com/casey/just
+
+# Default: build debug APK
+default: build
+
+export ANDROID_HOME := if env_var_or_default("ANDROID_HOME", "") == "" { "/home/liam/android-sdk" } else { "" }
+
+# ── Build ────────────────────────────────────────────────────
+
+# Build debug APK
+build:
+    ./gradlew assembleDebug
+
+# Build release APK (minified + ProGuard)
+build-release:
+    ./gradlew assembleRelease
+
+# Build app bundle (AAB) for Play Store
+bundle:
+    ./gradlew bundleRelease
+
+# Clean build artifacts
+clean:
+    ./gradlew clean
+
+# ── Test ─────────────────────────────────────────────────────
+
+# Run all unit tests
+test: test-unit
+
+# Unit tests only
+test-unit:
+    ./gradlew testDebugUnitTest
+
+# Android instrumented tests (requires emulator/device)
+test-android:
+    ./gradlew connectedDebugAndroidTest
+
+# Run specific test class (e.g., just test GoldCodeGeneratorTest)
+test-one CLASS:
+    ./gradlew app:testDebugUnitTest --tests "*{{CLASS}}*"
+
+# ── Install ──────────────────────────────────────────────────
+
+# Install debug APK on connected device
+install:
+    ./gradlew installDebug
+
+# Uninstall from connected device
+uninstall:
+    ./gradlew uninstallDebug
+
+# ── Lint ─────────────────────────────────────────────────────
+
+# Run Android lint
+lint:
+    ./gradlew lint
+
+# ── Utilities ────────────────────────────────────────────────
+
+# Clean and rebuild
+rebuild: clean build
+    @echo "✅ Rebuild complete"
+
+# Check for dependency updates
+deps:
+    ./gradlew dependencyUpdate
+
+# Run all pre-submit checks
+check: test lint
+    @echo "✅ All Android checks passed"

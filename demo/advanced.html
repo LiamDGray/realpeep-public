@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealPeep — Hash Chain & Anchoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .chain-graph { position:relative; min-height:300px; margin:1rem 0; }
+        .chain-node { position:absolute; width:90px; text-align:center; font-size:0.7rem; transition:all 0.3s; }
+        .chain-node .hash-box { background:rgba(0,210,255,0.12); border:1px solid rgba(0,210,255,0.3); border-radius:6px; padding:4px 6px; word-break:break-all; }
+        .chain-node .frame-idx { font-weight:600; color:var(--primary-color); margin-bottom:2px; }
+        .chain-node .prev-arrow { font-size:0.55rem; color:var(--text-muted); margin-bottom:1px; }
+        .chain-arrow { position:absolute; }
+        .chain-arrow line { stroke:rgba(0,210,255,0.4); stroke-width:1.5; }
+        .chain-arrow text { fill:var(--text-muted); font-size:0.55rem; }
+        .merkle-tree { display:flex; flex-direction:column; align-items:center; gap:8px; margin:1rem 0; }
+        .merkle-level { display:flex; gap:12px; align-items:center; }
+        .merkle-node { font-size:0.6rem; padding:3px 6px; background:rgba(0,230,118,0.1); border:1px solid rgba(0,230,118,0.3); border-radius:4px; min-width:60px; text-align:center; word-break:break-all; }
+        .merkle-node.root { background:rgba(0,230,118,0.2); border-color:var(--pass-color); font-weight:600; }
+        .merkle-connector { font-size:0.7rem; color:var(--text-muted); }
+        .status-sim { color:var(--warn-color); font-size:0.7rem; }
+        .status-real { color:var(--pass-color); font-size:0.7rem; }
+    </style>
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+    
+    <div class="container">
+        <nav style="text-align:center;padding:0.5rem 0 1rem;">
+            <a href="index.html" style="color:var(--text-muted);text-decoration:none;margin:0 1rem;">🔬 Main Demo</a>
+            <a href="advanced.html" style="color:var(--primary-color);font-weight:600;text-decoration:none;margin:0 1rem;border-bottom:2px solid var(--primary-color);">🔗 Advanced: Hash Chain & Anchoring</a>
+        </nav>
+        <header>
+            <h1>RealPeep Advanced</h1>
+            <p class="subtitle">Frame-Level Hash Chain & Merkle Anchoring</p>
+        </header>
+
+        <main class="dashboard">
+            <div class="glass-card module-card full-width">
+                <div class="card-header">
+                    <h2>Per-Frame Integrity Hash Chain</h2>
+                    <span class="status-badge pass">DEMO</span>
+                </div>
+                <p class="description">
+                    Each video frame is hashed with the previous frame's hash, creating an append-only chain.
+                    Removal, insertion, reordering, or truncation of any frame breaks the chain.
+                    Finalizing a segment computes the Merkle root, which is anchored to the Bitcoin blockchain
+                    via <a href="https://opentimestamps.org/" target="_blank" style="color:var(--primary-color);">OpenTimestamps</a>.
+                </p>
+                
+                <div class="control-group" style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" id="frame-input" placeholder="Frame data (e.g. frame-001)" style="flex:1;padding:8px;border-radius:4px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:white;">
+                    <button id="add-frame-btn" class="action-btn" style="white-space:nowrap;">+ Add Frame</button>
+                    <button id="finalize-btn" class="action-btn" style="white-space:nowrap;background:var(--pass-color);color:#000;">📎 Finalize</button>
+                    <button id="reset-btn" class="action-btn" style="white-space:nowrap;background:rgba(255,255,255,0.1);">↺ Reset</button>
+                </div>
+
+                <!-- Hash Chain Visualization -->
+                <div class="chain-graph" id="chain-graph">
+                    <svg id="chain-svg" width="100%" height="160" style="overflow:visible;"></svg>
+                </div>
+
+                <!-- Merkle Tree -->
+                <div class="merkle-tree" id="merkle-tree" style="display:none;">
+                    <h4 style="color:var(--text-muted);margin-bottom:4px;">Merkle Tree</h4>
+                    <div id="merkle-levels"></div>
+                    <div style="margin-top:8px;font-size:0.75rem;color:var(--text-muted);">
+                        Merkle Root: <span id="merkle-root-display" style="color:var(--pass-color);font-family:monospace;">—</span>
+                    </div>
+                </div>
+
+                <!-- Blockchain Anchor Info -->
+                <div class="result-box pass-box" style="margin-top:15px;font-size:0.8rem;">
+                    <div><strong>Frames:</strong> <span id="frame-count">0</span></div>
+                    <div><strong>Status:</strong> 
+                        <span class="status-sim">🟡 Hash chain is simulated (client-side JS)</span><br>
+                        <span class="status-real" style="margin-left:0.5rem;">🟢 In production: SHA-256 per frame → Merkle root → Bitcoin via OpenTimestamps</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module">
+        import { buildFrameHashChain, computeMerkleRoot } from './blockchain-anchor.js';
+
+        const frames = [];
+        const svg = document.getElementById('chain-svg');
+        const ns = 'http://www.w3.org/2000/svg';
+        const NODE_W = 100, NODE_SPACING = 130, NODE_H = 90, START_X = 30, Y = 10;
+        const ARROW_HEAD = 5;
+
+        function drawChain() {
+            svg.innerHTML = '';
+            if (frames.length === 0) {
+                const text = document.createElementNS(ns, 'text');
+                text.setAttribute('x', START_X);
+                text.setAttribute('y', Y + 40);
+                text.setAttribute('fill', 'var(--text-muted)');
+                text.setAttribute('font-size', '0.8rem');
+                text.textContent = 'Add frames to see the hash chain…';
+                svg.appendChild(text);
+                svg.setAttribute('height', '80');
+                return;
+            }
+
+            const { chain } = buildFrameHashChain(frames);
+            const totalW = START_X + frames.length * NODE_SPACING;
+            svg.setAttribute('height', Math.max(160, NODE_H + 80));
+
+            // Draw arrows between nodes
+            for (let i = 1; i < chain.length; i++) {
+                const g = document.createElementNS(ns, 'g');
+                const x1 = START_X + (i - 1) * NODE_SPACING + NODE_W;
+                const x2 = START_X + i * NODE_SPACING;
+                const y = Y + NODE_H / 2;
+
+                // Main arrow
+                const line = document.createElementNS(ns, 'line');
+                line.setAttribute('x1', x1 + 5);
+                line.setAttribute('y1', y - 15);
+                line.setAttribute('x2', x2 - 5);
+                line.setAttribute('y2', y - 15);
+                line.setAttribute('stroke', 'rgba(0,210,255,0.3)');
+                line.setAttribute('stroke-width', '1.5');
+                line.setAttribute('marker-end', 'url(#arrowhead)');
+                g.appendChild(line);
+
+                // Label
+                const label = document.createElementNS(ns, 'text');
+                label.setAttribute('x', (x1 + x2) / 2);
+                label.setAttribute('y', y - 22);
+                label.setAttribute('fill', 'var(--text-muted)');
+                label.setAttribute('font-size', '0.5rem');
+                label.setAttribute('text-anchor', 'middle');
+                label.textContent = 'prev_hash';
+                g.appendChild(label);
+
+                svg.appendChild(g);
+            }
+
+            // Arrow marker def
+            const defs = document.createElementNS(ns, 'defs');
+            const marker = document.createElementNS(ns, 'marker');
+            marker.setAttribute('id', 'arrowhead');
+            marker.setAttribute('markerWidth', '8');
+            marker.setAttribute('markerHeight', '6');
+            marker.setAttribute('refX', '8');
+            marker.setAttribute('refY', '3');
+            marker.setAttribute('orient', 'auto');
+            const poly = document.createElementNS(ns, 'polygon');
+            poly.setAttribute('points', '0 0, 8 3, 0 6');
+            poly.setAttribute('fill', 'rgba(0,210,255,0.4)');
+            marker.appendChild(poly);
+            defs.appendChild(marker);
+            svg.appendChild(defs);
+
+            // Draw nodes (in reverse so newer frames are on top)
+            for (let i = chain.length - 1; i >= 0; i--) {
+                const g = document.createElementNS(ns, 'g');
+                const x = START_X + i * NODE_SPACING;
+
+                // Node background
+                const rect = document.createElementNS(ns, 'rect');
+                rect.setAttribute('x', x);
+                rect.setAttribute('y', Y);
+                rect.setAttribute('width', NODE_W);
+                rect.setAttribute('height', NODE_H);
+                rect.setAttribute('rx', '6');
+                rect.setAttribute('fill', i === chain.length - 1 ? 'rgba(0,230,118,0.1)' : 'rgba(0,210,255,0.08)');
+                rect.setAttribute('stroke', i === chain.length - 1 ? 'rgba(0,230,118,0.4)' : 'rgba(0,210,255,0.2)');
+                rect.setAttribute('stroke-width', '1');
+                g.appendChild(rect);
+
+                // Frame index
+                const idxText = document.createElementNS(ns, 'text');
+                idxText.setAttribute('x', x + NODE_W / 2);
+                idxText.setAttribute('y', Y + 18);
+                idxText.setAttribute('fill', i === chain.length - 1 ? 'var(--pass-color)' : 'var(--primary-color)');
+                idxText.setAttribute('font-size', '0.65rem');
+                idxText.setAttribute('font-weight', '600');
+                idxText.setAttribute('text-anchor', 'middle');
+                idxText.textContent = `Frame ${i}`;
+                g.appendChild(idxText);
+
+                // Frame data
+                const dataText = document.createElementNS(ns, 'text');
+                dataText.setAttribute('x', x + NODE_W / 2);
+                dataText.setAttribute('y', Y + 34);
+                dataText.setAttribute('fill', 'var(--text-muted)');
+                dataText.setAttribute('font-size', '0.55rem');
+                dataText.setAttribute('text-anchor', 'middle');
+                dataText.textContent = frames[i].slice(0, 14);
+                g.appendChild(dataText);
+
+                // Hash (truncated)
+                const hashText = document.createElementNS(ns, 'text');
+                hashText.setAttribute('x', x + NODE_W / 2);
+                hashText.setAttribute('y', Y + 52);
+                hashText.setAttribute('fill', 'rgba(255,255,255,0.7)');
+                hashText.setAttribute('font-size', '0.55rem');
+                hashText.setAttribute('text-anchor', 'middle');
+                hashText.setAttribute('font-family', 'monospace');
+                hashText.textContent = chain[i].hash.slice(0, 12) + '…';
+                g.appendChild(hashText);
+
+                // Dependency arrow label
+                if (i > 0) {
+                    const depText = document.createElementNS(ns, 'text');
+                    depText.setAttribute('x', x + NODE_W / 2);
+                    depText.setAttribute('y', Y + NODE_H - 8);
+                    depText.setAttribute('fill', 'var(--text-muted)');
+                    depText.setAttribute('font-size', '0.5rem');
+                    depText.setAttribute('text-anchor', 'middle');
+                    depText.textContent = `← F${i-1} hash`;
+                    g.appendChild(depText);
+                } else {
+                    const genText = document.createElementNS(ns, 'text');
+                    genText.setAttribute('x', x + NODE_W / 2);
+                    genText.setAttribute('y', Y + NODE_H - 8);
+                    genText.setAttribute('fill', 'var(--text-muted)');
+                    genText.setAttribute('font-size', '0.5rem');
+                    genText.setAttribute('text-anchor', 'middle');
+                    genText.textContent = 'genesis';
+                    g.appendChild(genText);
+                }
+
+                svg.appendChild(g);
+            }
+        }
+
+        function drawMerkleTree() {
+            const { chain, merkleRoot } = buildFrameHashChain(frames);
+            document.getElementById('merkle-root-display').textContent = merkleRoot;
+            document.getElementById('merkle-tree').style.display = 'flex';
+
+            const levelsDiv = document.getElementById('merkle-levels');
+            levelsDiv.innerHTML = '';
+
+            // Build Merkle tree levels
+            let level = chain.map(f => f.hash);
+            let levelIdx = 0;
+
+            while (level.length > 0) {
+                const row = document.createElement('div');
+                row.className = 'merkle-level';
+
+                for (let i = 0; i < level.length; i++) {
+                    const node = document.createElement('div');
+                    node.className = 'merkle-node' + (level.length === 1 ? ' root' : '');
+                    const label = level.length === 1 ? 'ROOT' : `L${levelIdx}`;
+                    node.innerHTML = `<div style="font-size:0.5rem;color:var(--text-muted);">${label}</div>${level[i].slice(0,8)}…`;
+                    row.appendChild(node);
+
+                    // Connector between pairs
+                    if (i < level.length - 1 && i % 2 === 0) {
+                        const conn = document.createElement('span');
+                        conn.className = 'merkle-connector';
+                        conn.textContent = '⊕';
+                        row.appendChild(conn);
+                    }
+                }
+                levelsDiv.appendChild(row);
+
+                if (level.length === 1) break;
+
+                // Next level up
+                const next = [];
+                for (let i = 0; i < level.length; i += 2) {
+                    const left = level[i];
+                    const right = i + 1 < level.length ? level[i + 1] : level[i];
+                    // Use same hash as demoHash in blockchain-anchor.js
+                    let h = 0;
+                    const s = left + ':' + right;
+                    for (let j = 0; j < s.length; j++) {
+                        h = ((h << 5) - h) + s.charCodeAt(j);
+                        h |= 0;
+                    }
+                    next.push(Math.abs(h).toString(16).padStart(64, '0'));
+                }
+                level = next;
+                levelIdx++;
+            }
+        }
+
+        document.getElementById('add-frame-btn').addEventListener('click', () => {
+            const input = document.getElementById('frame-input');
+            const data = input.value.trim();
+            if (!data) return;
+            frames.push(data);
+            input.value = '';
+            document.getElementById('frame-count').textContent = frames.length;
+            drawChain();
+        });
+
+        document.getElementById('finalize-btn').addEventListener('click', () => {
+            if (frames.length === 0) return;
+            drawMerkleTree();
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            frames.length = 0;
+            document.getElementById('frame-count').textContent = '0';
+            document.getElementById('merkle-tree').style.display = 'none';
+            const svg = document.getElementById('chain-svg');
+            svg.innerHTML = '';
+            svg.setAttribute('height', '80');
+            const ns = 'http://www.w3.org/2000/svg';
+            const text = document.createElementNS(ns, 'text');
+            text.setAttribute('x', '30');
+            text.setAttribute('y', '50');
+            text.setAttribute('fill', 'var(--text-muted)');
+            text.setAttribute('font-size', '0.8rem');
+            text.textContent = 'Add frames to see the hash chain…';
+            svg.appendChild(text);
+        });
+    </script>
+</body>
+</html>

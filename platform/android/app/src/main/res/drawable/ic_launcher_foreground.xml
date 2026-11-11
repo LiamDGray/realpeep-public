@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Circle -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"/>
+    <!-- RP text simplified as dots -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,42l12,0l0,4l-8,0l0,6l7,0l0,4l-7,0l0,8l-4,0z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M58,42l4,0l0,22l-4,0z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M66,42l4,0l8,12l-4.5,0l-1.5,-2.3l-1.5,2.3l-4.5,0l8,-12zM67,48l2.5,3.8l2.5,-3.8l-2.5,-3.8z"/>
+</vector>

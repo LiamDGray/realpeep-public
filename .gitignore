@@ -1,0 +1,50 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# MacOS
+.DS_Store
+
+# Circom / ZK
+circuit/node_modules/
+*.r1cs
+*.sym
+*.wasm
+*.ptau
+*.zkey
+*.wtns
+proof.json
+public.json
+circuit/*_js/
+circuit/*.zkey
+
+# Committed ZK artifacts (for demo use) — not rebuilt in CI unless circuit source changes
+!demo/circuit-artifacts/
+!demo/circuit-artifacts/*
+
+# Editor
+.vscode/
+.idea/
+
+# Scratch files
+scratch.js
+*.log
+*.txt
+realpeep-js/coverage/
+
+# System files that don't belong in repo
+send_email.py
+sanoid-prune-override.conf
+
+# Hermes agent workspace
+.agents/
+AGENTS.md
+.wrangler/

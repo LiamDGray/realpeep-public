@@ -1,0 +1,17 @@
+{
+  "name": "realpeep-workers",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy": "npx wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.5.0",
+    "puppeteer": "^25.3.0",
+    "vitest": "^2.0.0",
+    "wrangler": "^3.60.0"
+  }
+}

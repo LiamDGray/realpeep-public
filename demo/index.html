@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RealPeep Asymmetric Liveness Defenses Demo">
+    <title>RealPeep — Duress Protocol Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    
+    <div class="container">
+        <nav class="demo-nav" style="text-align:center;padding:0.5rem 0 1rem;">
+            <a href="index.html" style="color:var(--primary-color);font-weight:600;text-decoration:none;margin:0 1rem;border-bottom:2px solid var(--primary-color);">🔬 Main Demo</a>
+            <a href="advanced.html" style="color:var(--text-muted);text-decoration:none;margin:0 1rem;">🔗 Advanced: Hash Chain & Anchoring</a>
+        </nav>
+        <header>
+            <h1>RealPeep</h1>
+            <p class="subtitle">Next-Generation Asymmetric Liveness Defenses</p>
+        </header>
+
+        <main class="dashboard">
+            <!-- Two-Pane End-to-End Witness Demo -->
+            <div class="glass-card module-card full-width" id="witness-module">
+                <div class="card-header">
+                    <h2>🔗 End-to-End Witness Demo</h2>
+                    <span class="status-badge" id="witness-status">READY</span>
+                </div>
+                <p class="description">
+                    Interactive two-pane witness demo: simulated phone recording (left) with real
+                    chirp CDMA audio playback and technical visualizations (right) showing mesh
+                    graph, spatio-temporal DAG, Merkle trees, and verifier certificate.
+                </p>
+
+                <!-- Device count -->
+                <div class="witness-controls" style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+                    <label>Devices: <input type="range" id="witness-num-devices" min="2" max="5" step="1" value="3" style="width:80px;"></label>
+                    <span class="highlight-val" id="witness-num-devices-val">3</span>
+                    <button id="witness-reset-btn" class="action-btn" style="padding:6px 16px;font-size:0.85rem;background:var(--glass-border);">🔄 Reset</button>
+                </div>
+
+                <!-- Two-Pane Layout -->
+                <div class="witness-two-pane" id="witness-two-pane">
+                    <!-- LEFT: Simulated Phone UI -->
+                    <div class="witness-left-pane" id="witness-left-pane">
+                        <!-- Populated by ui/witness-pane.js -->
+                    </div>
+
+                    <!-- RIGHT: Technical Visualizations -->
+                    <div class="witness-right-pane" id="witness-right-pane">
+                        <!-- Populated by ui/visualization-pane.js -->
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card module-card" id="cme-module">
+                <div class="card-header">
+                    <h2>Cross-Modal Entanglement (CME)</h2>
+                    <span class="status-badge pass" id="cme-status">PASSED</span>
+                </div>
+                <p class="description">Verifies sub-millisecond audio/video physics synchronization.</p>
+                <div class="control-group">
+                    <label for="cme-slider">Attacker Decoupling Latency: <span id="cme-latency-val" class="highlight-val">0.0</span> ms</label>
+                    <input type="range" id="cme-slider" min="0" max="30" step="0.5" value="0">
+                </div>
+                <div class="visualizer cme-vis">
+                    <div class="track">
+                        <div class="peak video-peak" id="cme-v-peak"></div>
+                        <span class="track-label">Video (Skin Deformation)</span>
+                    </div>
+                    <div class="track">
+                        <div class="peak audio-peak" id="cme-a-peak"></div>
+                        <span class="track-label">Audio (Bone Conduction)</span>
+                    </div>
+                </div>
+                <div class="result-box pass-box" id="cme-result">Sub-millisecond sync validated.</div>
+            </div>
+
+            <!-- SPCI Card (Added Duress) -->
+            <div class="glass-card module-card" id="spci-module">
+                <div class="card-header">
+                    <h2>Cryptographic Illumination (SPCI)</h2>
+                    <span class="status-badge pass" id="spci-status">PASSED</span>
+                </div>
+                <p class="description">Cross-correlates 120Hz challenge with corneal reflection latency.</p>
+                <div class="control-group">
+                    <label for="spci-slider">Deepfake Render Latency: <span id="spci-latency-val" class="highlight-val">0</span> ms</label>
+                    <input type="range" id="spci-slider" min="0" max="25" step="1" value="0">
+                </div>
+                
+                <div class="control-group switch-group" style="margin-top: 10px; margin-bottom: 5px;">
+                    <span class="toggle-label" style="color: #ff9100;">Rubber Hose Duress Mode (Fake Blink)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="spci-duress-toggle">
+                        <span class="slider round" style="background-color: rgba(255,145,0,0.3);"></span>
+                    </label>
+                </div>
+
+                <div class="visualizer spci-vis">
+                    <div class="flash-box" id="spci-flasher">SCREEN CHALLENGE</div>
+                    <canvas id="spci-canvas" width="300" height="60"></canvas>
+                </div>
+                <button id="spci-test-btn" class="action-btn">Execute 120Hz Test</button>
+                <div class="result-box pass-box" id="spci-result">Ready for test.</div>
+            </div>
+
+            <!-- HCSJ Card -->
+            <div class="glass-card module-card" id="hcsj-module">
+                <div class="card-header">
+                    <h2>Hardware Shutter Jitter (HCSJ)</h2>
+                    <span class="status-badge pass" id="hcsj-status">PASSED</span>
+                </div>
+                <p class="description">Analyzes variance against monitor PWM flicker (The Analog Hole).</p>
+                <div class="control-group switch-group">
+                    <span class="toggle-label">Real Face</span>
+                    <label class="switch">
+                        <input type="checkbox" id="hcsj-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="toggle-label">OLED Monitor</span>
+                </div>
+                <div class="visualizer hcsj-vis">
+                    <canvas id="hcsj-canvas" width="300" height="80"></canvas>
+                </div>
+                <div class="result-box pass-box" id="hcsj-result">Continuous light variance: 0.0123</div>
+            </div>
+
+            <!-- P0a: ZK Pipeline Card — Enhanced with Duress Key Demo -->
+            <div class="glass-card module-card full-width" id="zk-module">
+                <div class="card-header">
+                    <h2>Zero-Knowledge Transmission Pipeline</h2>
+                    <span class="status-badge pass" id="zk-status">READY</span>
+                </div>
+                <p class="description">
+                    When you record a video, the app generates a cryptographic proof that the footage came from real hardware.
+                    If someone detains you and demands you prove the video is "real" — or delete it — you have a way to comply
+                    while secretly signaling for help.
+                </p>
+                
+                <!-- Passphrase Section (NEW) -->
+                <div class="passphrase-section" id="passphrase-section">
+                    <div class="passphrase-header">
+                        <h3>Step 1: Choose Your Passphrase</h3>
+                        <span class="passphrase-hint">You set these up when you installed the app. Both unlock the phone. Both produce valid proofs. Only one signals duress.</span>
+                    </div>
+                    <div class="passphrase-buttons">
+                        <button class="passphrase-btn normal-btn" data-passphrase="normal" id="passphrase-normal-btn">
+                            <span class="passphrase-label">Normal Passphrase</span>
+                            <span class="passphrase-value">my-cat-is-named-mittens</span>
+                            <span class="passphrase-desc">Produces a standard proof. No flag.</span>
+                        </button>
+                        <button class="passphrase-btn duress-btn" data-passphrase="duress" id="passphrase-duress-btn">
+                            <span class="passphrase-label">Duress Passphrase</span>
+                            <span class="passphrase-value">my-cat-is-named-socks</span>
+                            <span class="passphrase-desc">Produces a valid proof with a hidden duress flag.</span>
+                        </button>
+                    </div>
+                    <div class="passphrase-info" id="passphrase-info">
+                        <span class="passphrase-info-icon">🔑</span>
+                        <span id="passphrase-active-label">Tap a passphrase above to begin</span>
+                    </div>
+                </div>
+
+                <!-- View Toggle (NEW) -->
+                <div class="view-toggle-section">
+                    <h3>Step 2: Choose Your View</h3>
+                    <span class="passphrase-hint">The captor sees everything you see — but they can't see what the notary sees.</span>
+                    <div class="view-toggle-buttons">
+                        <button class="view-toggle-btn active-view" data-view="captor" id="view-captor-btn">
+                            <span class="view-icon">👁️</span>
+                            <span>Captor's View</span>
+                            <span class="view-desc">What the person holding your phone sees</span>
+                        </button>
+                        <button class="view-toggle-btn" data-view="notary" id="view-notary-btn">
+                            <span class="view-icon">🔍</span>
+                            <span>Notary's View</span>
+                            <span class="view-desc">What the trusted server secretly detects</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="zk-slider">Simulate TCP Network Congestion: <span id="zk-latency-val" class="highlight-val">0</span> ms delay</label>
+                    <input type="range" id="zk-slider" min="0" max="5000" step="100" value="0">
+                </div>
+
+                <div class="zk-pipeline-vis">
+                    <div class="zk-node enclave-node">
+                        <h4>Secure Enclave</h4>
+                        <div class="zk-data" id="zk-enclave-data">Waiting...</div>
+                    </div>
+                    <div class="zk-arrow" id="arrow-1">➔</div>
+                    <div class="zk-node circuit-node">
+                        <h4>ZK Scrubber</h4>
+                        <div class="zk-data" id="zk-circuit-data">...</div>
+                    </div>
+                    <div class="zk-arrow" id="arrow-2">➔</div>
+                    <div class="zk-node network-node">
+                        <h4>TCP Internet</h4>
+                        <div class="zk-data" id="zk-network-data">...</div>
+                    </div>
+                    <div class="zk-arrow" id="arrow-3">➔</div>
+                    <div class="zk-node server-node">
+                        <h4>Verified Server</h4>
+                        <div class="zk-data" id="zk-server-data">...</div>
+                    </div>
+                </div>
+
+                <button id="zk-test-btn" class="action-btn" style="margin-top: 20px;">Transmit Liveness Proof</button>
+                
+                <!-- Result Area (Enhanced) -->
+                <div class="result-box pass-box" id="zk-result">Click transmit to view scrubbing flow.</div>
+
+                <!-- Notary Detection Panel (NEW — hidden by default, shown in notary view) -->
+                <div class="notary-detection-panel" id="notary-detection-panel" style="display: none;">
+                    <div class="notary-header">
+                        <span class="notary-icon">🔍</span>
+                        <span class="notary-title">Notary Detection Console</span>
+                        <span class="notary-badge" id="notary-badge">MONITORING</span>
+                    </div>
+                    <div class="notary-console" id="notary-console">
+                        [notary] Listening for incoming proofs...
+                    </div>
+                    <div class="notary-explanation" id="notary-explanation">
+                        <p><strong>How it works:</strong> Every proof contains a nonce — a random-looking number. The duress passphrase generates a nonce that, when hashed with the notary's secret key, produces a specific pattern. The captor sees only a random nonce. Only the notary can detect the flag.</p>
+                    </div>
+                </div>
+
+                <!-- Captor Dilemma (NEW — shown after transmission) -->
+                <div class="captor-dilemma" id="captor-dilemma" style="display: none;">
+                    <div class="dilemma-header">
+                        <span class="dilemma-icon">❓</span>
+                        <span class="dilemma-title">The Captor's Dilemma</span>
+                    </div>
+                    <div class="dilemma-body">
+                        <p>The captor has your passphrase. They can run the verifier. It says <strong>PASSED</strong>.</p>
+                        <p>They have no reason to suspect anything. The proof is valid. It looks identical to every other proof.</p>
+                        <p class="dilemma-outcome"><strong>Result:</strong> The captor is satisfied. The notary is alerted. You survive.</p>
+                    </div>
+                </div>
+
+                <!-- Duress Flag Alert (NEW — shown in notary view when duress detected) -->
+                <div class="duress-alert" id="duress-alert" style="display: none;">
+                    <span class="duress-alert-icon">🚨</span>
+                    <div class="duress-alert-content">
+                        <strong>DURESS FLAG DETECTED</strong>
+                        <span>Silent escalation protocol triggered. Legal observer notified. No visible change to captor.</span>
+                    </div>
+                </div>
+
+                <!-- Duress Miss Alert (NEW — shown in notary view when NO duress) -->
+                <div class="duress-miss" id="duress-miss" style="display: none;">
+                    <span class="duress-miss-icon">✅</span>
+                    <div class="duress-miss-content">
+                        <strong>No duress signal detected</strong>
+                        <span>Standard proof — no flag. User generated this freely.</span>
+                    </div>
+                </div>
+            </div>
+
+<!-- P0b: Mesh Witness Card — Transmit-Only Acoustic Mesh -->
+<div class="glass-card module-card full-width" id="mesh-module">
+    <div class="card-header">
+        <h2>Acoustic Mesh: Transmit-Only Witness Protocol</h2>
+        <span class="status-badge pass" id="mesh-status">READY</span>
+    </div>
+    <p class="description">
+        Devices never listen at capture time. They broadcast Gold-coded ultrasonic chirps
+        at random intervals and sign the raw audio. A powerful offline verifier later
+        correlates every device's code against every other device's recording to prove
+        pairwise co-location. <strong>Transmit-only, decode-later.</strong>
+    </p>
+
+    <!-- Scenario Toggle -->
+    <div class="scenario-selector-inline">
+        <button class="scenario-btn scenario-active" data-mesh-scenario="normal" id="mesh-scenario-normal">
+            <span>🙋</span> Normal Witnessing
+        </button>
+        <button class="scenario-btn" data-mesh-scenario="coerced" id="mesh-scenario-coerced">
+            <span>⛓️</span> Coerced Witness
+        </button>
+    </div>
+    <div class="scenario-description" id="mesh-scenario-desc">
+        All witnesses are free. All attestations will be valid and mutually verifiable.
+    </div>
+
+    <div class="mesh-network-state">
+        🌐 STATUS: <span id="mesh-network-text" class="status-amber">OFFLINE — Device Audio Captures</span>
+    </div>
+
+    <!-- Three columns of devices -->
+    <div class="mesh-devices-container three-devices">
+        <!-- Device A -->
+        <div class="mesh-device" id="device-a-container">
+            <div class="mesh-device-header">
+                <h4>Device A</h4>
+                <div class="mesh-status-indicator" id="device-a-status">Idle</div>
+            </div>
+            <div class="mesh-key-display" id="device-a-key">-</div>
+            <div class="audio-timeline" id="timeline-a">
+                <div class="timeline-label">Raw Audio Timeline</div>
+                <div class="timeline-track" id="track-a">
+                    <div class="chirp-marker" id="chirp-a" style="display:none" title="A's own chirp"></div>
+                    <div class="chirp-marker foreign" id="chirp-from-b-in-a" style="display:none" title="B's chirp heard by A"></div>
+                    <div class="chirp-marker foreign" id="chirp-from-c-in-a" style="display:none" title="C's chirp heard by A"></div>
+                </div>
+            </div>
+            <div class="mesh-signed" id="signed-a"><span class="signed-text">📄 Hash & Signed: —</span></div>
+            <div class="heartbeat-container" id="device-a-heartbeat" style="display:none">
+                <div class="heartbeat-label">Heartbeat</div>
+                <div class="heartbeat-bar">
+                    <div class="heartbeat-fill" id="device-a-hb-fill"></div>
+                </div>
+                <div class="heartbeat-time" id="device-a-hb-time">12.0s</div>
+            </div>
+        </div>
+
+        <!-- Device B -->
+        <div class="mesh-device" id="device-b-container">
+            <div class="mesh-device-header">
+                <h4>Device B</h4>
+                <div class="mesh-status-indicator" id="device-b-status">Idle</div>
+            </div>
+            <div class="mesh-key-display" id="device-b-key">-</div>
+            <div class="audio-timeline" id="timeline-b">
+                <div class="timeline-label">Raw Audio Timeline</div>
+                <div class="timeline-track" id="track-b">
+                    <div class="chirp-marker" id="chirp-b" style="display:none" title="B's own chirp"></div>
+                    <div class="chirp-marker foreign" id="chirp-from-a-in-b" style="display:none" title="A's chirp heard by B"></div>
+                    <div class="chirp-marker foreign" id="chirp-from-c-in-b" style="display:none" title="C's chirp heard by B"></div>
+                </div>
+            </div>
+            <div class="mesh-signed" id="signed-b"><span class="signed-text">📄 Hash & Signed: —</span></div>
+            <div class="heartbeat-container" id="device-b-heartbeat" style="display:none">
+                <div class="heartbeat-label">Heartbeat</div>
+                <div class="heartbeat-bar">
+                    <div class="heartbeat-fill" id="device-b-hb-fill"></div>
+                </div>
+                <div class="heartbeat-time" id="device-b-hb-time">12.0s</div>
+            </div>
+        </div>
+
+        <!-- Device C -->
+        <div class="mesh-device" id="device-c-container">
+            <div class="mesh-device-header">
+                <h4>Device C</h4>
+                <div class="mesh-status-indicator" id="device-c-status">Idle</div>
+            </div>
+            <div class="mesh-key-display" id="device-c-key">-</div>
+            <div class="audio-timeline" id="timeline-c">
+                <div class="timeline-label">Raw Audio Timeline</div>
+                <div class="timeline-track" id="track-c">
+                    <div class="chirp-marker" id="chirp-c" style="display:none" title="C's own chirp"></div>
+                    <div class="chirp-marker foreign" id="chirp-from-a-in-c" style="display:none" title="A's chirp heard by C"></div>
+                    <div class="chirp-marker foreign" id="chirp-from-b-in-c" style="display:none" title="B's chirp heard by C"></div>
+                </div>
+            </div>
+            <div class="mesh-signed" id="signed-c"><span class="signed-text">📄 Hash & Signed: —</span></div>
+            <div class="heartbeat-container" id="device-c-heartbeat" style="display:none">
+                <div class="heartbeat-label">Heartbeat</div>
+                <div class="heartbeat-bar">
+                    <div class="heartbeat-fill" id="device-c-hb-fill"></div>
+                </div>
+                <div class="heartbeat-time" id="device-c-hb-time">12.0s</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Correlation Peaks Visualization -->
+    <div class="correlation-panel" id="correlation-panel" style="display:none">
+        <h4>🔬 Offline Verifier: Cross-Correlation Results</h4>
+        <div class="correlation-grid" id="correlation-grid"></div>
+    </div>
+
+    <!-- Topology Map -->
+    <div class="topology-map" id="topology-map" style="display:none">
+        <h4>📍 Co-Location Topology</h4>
+        <div class="topology-graph" id="topology-graph">
+            <div class="topo-node topo-a">A</div>
+            <div class="topo-node topo-b">B</div>
+            <div class="topo-node topo-c">C</div>
+            <div class="topo-edge topo-edge-ab" id="topo-edge-ab">—</div>
+            <div class="topo-edge topo-edge-ac" id="topo-edge-ac">—</div>
+            <div class="topo-edge topo-edge-bc" id="topo-edge-bc">—</div>
+        </div>
+        <div class="topology-legend" id="topology-legend"></div>
+    </div>
+
+    <!-- Detain Controls -->
+    <div class="detain-controls" id="detain-controls" style="display:none">
+        <div class="detain-row">
+            <span class="detain-label">Device A:</span>
+            <button class="detain-btn free-btn active-detain" data-device="a" id="detain-a-free">🟢 Free</button>
+            <button class="detain-btn detained-btn" data-device="a" id="detain-a-detained">🔴 Detained</button>
+        </div>
+        <div class="detain-row">
+            <span class="detain-label">Device B:</span>
+            <button class="detain-btn free-btn active-detain" data-device="b" id="detain-b-free">🟢 Free</button>
+            <button class="detain-btn detained-btn" data-device="b" id="detain-b-detained">🔴 Detained</button>
+        </div>
+        <div class="detain-row">
+            <span class="detain-label">Device C:</span>
+            <button class="detain-btn free-btn active-detain" data-device="c" id="detain-c-free">🟢 Free</button>
+            <button class="detain-btn detained-btn" data-device="c" id="detain-c-detained">🔴 Detained</button>
+        </div>
+    </div>
+
+    <!-- Consensus Grid -->
+    <div class="consensus-grid" id="consensus-grid" style="display:none">
+        <div class="consensus-header">Consensus After Verifier Processing</div>
+        <div class="consensus-row" id="consensus-device-a">
+            <span class="consensus-device">Device A</span>
+            <span class="consensus-status" id="consensus-a-status">🟢 VALID</span>
+        </div>
+        <div class="consensus-row" id="consensus-device-b">
+            <span class="consensus-device">Device B</span>
+            <span class="consensus-status" id="consensus-b-status">🟢 VALID</span>
+        </div>
+        <div class="consensus-row" id="consensus-device-c">
+            <span class="consensus-device">Device C</span>
+            <span class="consensus-status" id="consensus-c-status">🟢 VALID</span>
+        </div>
+        <div class="consensus-row consensus-total">
+            <span class="consensus-device">Overall Verdict</span>
+            <span class="consensus-status" id="consensus-verdict">✅ AUTHENTIC</span>
+        </div>
+    </div>
+
+    <!-- Notary Certificate -->
+    <div class="notary-verification" id="notary-verification" style="display:none">
+        <h4>🔍 Notary: MNR Certificate Issued</h4>
+        <div class="cert-box" id="mnr-cert-box" style="display:none">
+            <h4>[CERTIFICATE OF CO-LOCATION]</h4>
+            <div id="cert-contents"></div>
+        </div>
+    </div>
+
+    <button id="mesh-test-btn" class="action-btn" style="margin-top: 20px;">Simulate Acoustic Capture Session</button>
+</div>
+
+            <!-- Audio CDMA Generation & Correlation -->
+            <div class="glass-card module-card full-width" id="audio-cdma-module">
+                <div class="card-header">
+                    <h2>Audio CDMA: Gold Code Generation & Correlation</h2>
+                    <span class="status-badge pass" id="audio-cdma-status">READY</span>
+                </div>
+                <p class="description">
+                    Generate Gold-coded audio chirps with propagation delays and inverse-square
+                    attenuation. Correlate codes against audio buffers to detect chirp arrivals
+                    and estimate distances. Pure JS — all computation runs in-browser.
+                </p>
+
+                <div class="control-group" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+                    <label>Devices: <input type="range" id="ac-num-devices" min="2" max="3" step="1" value="3" style="width:80px;"></label>
+                    <span class="highlight-val" id="ac-num-devices-val">3</span>
+                    <label>Spreading Factor: <input type="range" id="ac-sf" min="32" max="512" step="32" value="128" style="width:80px;"></label>
+                    <span class="highlight-val" id="ac-sf-val">128</span>
+                    <label style="margin-left:0.5rem;font-size:0.85rem;">
+                        <input type="checkbox" id="ac-chirp-toggle" checked>
+                        Chirp CDMA
+                    </label>
+                </div>
+
+                <div class="ac-positions" id="ac-positions" style="margin:0.5rem 0;">
+                    <h4 style="margin:0.5rem 0;">Device Positions (meters)</h4>
+                    <div id="ac-position-inputs" style="display:flex;gap:1rem;flex-wrap:wrap;"></div>
+                </div>
+
+                <button id="ac-run-btn" class="action-btn" style="margin-top:15px;">Generate Audio & Correlate</button>
+
+                <div class="ac-results" id="ac-results" style="display:none;margin-top:1rem;">
+                    <h4>🔬 Correlation Results</h4>
+                    <div id="ac-correlation-grid" class="correlation-grid"></div>
+                    <div id="ac-detection-summary" style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-muted);"></div>
+                </div>
+            </div>
+
+            <!-- CDMA DSP Tuning Dashboard -->
+            <div class="glass-card module-card full-width" id="dsp-module">
+                <div class="card-header">
+                    <h2>DSP Engine Tuning (CDMA Simulation)</h2>
+                    <span class="status-badge pass" id="dsp-status">LIVE</span>
+                </div>
+                <p class="description">Tune the physics parameters of the acoustic environment and watch the matched filter extract keys in real-time.</p>
+                
+                <div class="dsp-grid">
+                    <!-- Controls -->
+                    <div class="dsp-controls">
+                        <div class="control-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>Acoustic Physics Parameters</h3>
+                            <button id="btn-optimal" class="action-btn" style="padding: 5px 10px; font-size: 0.8rem;">Reset to Optimal Defaults</button>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="dsp-devices">Simultaneous Broadcasters: <span id="dsp-devices-val" class="highlight-val">3</span></label>
+                            <input type="range" id="dsp-devices" min="1" max="20" step="1" value="3">
+                            <small class="hint">How many devices are jamming the exact same frequency band.</small>
+                        </div>
+                        <div class="control-group">
+                            <label for="dsp-spreading">Spreading Factor (Orthogonality): <span id="dsp-spreading-val" class="highlight-val">128</span></label>
+                            <input type="range" id="dsp-spreading" min="16" max="1024" step="16" value="128">
+                            <small class="hint">Higher values handle more devices, but exponentially increase required bandwidth/time.</small>
+                        </div>
+                        <div class="control-group">
+                            <label for="dsp-fec">RS Parity Bytes: <span id="dsp-fec-val" class="highlight-val">20</span></label>
+                            <input type="range" id="dsp-fec" min="0" max="40" step="2" value="20">
+                            <small class="hint">Redundancy factor. Higher values survive severe burst errors (sirens) but take longer.</small>
+                        </div>
+                        <div class="control-group">
+                            <label for="dsp-noise">Ambient Noise (AWGN std): <span id="dsp-noise-val" class="highlight-val">5.0</span></label>
+                            <input type="range" id="dsp-noise" min="0" max="15" step="0.5" value="5.0">
+                            <small class="hint">Background acoustic noise floor of the protest environment.</small>
+                        </div>
+                        <div class="control-group">
+                            <label for="dsp-loss">Burst Packet Loss (Obstruction): <span id="dsp-loss-val" class="highlight-val">20</span>%</label>
+                            <input type="range" id="dsp-loss" min="0" max="50" step="1" value="20">
+                            <small class="hint">Physical obstruction or loud siren wiping out a contiguous chunk of audio.</small>
+                        </div>
+                        
+                        <button id="btn-execute-dsp" class="action-btn" style="margin-top: 15px; width: 100%; background-color: var(--primary-color); color: var(--bg-dark);">Execute DSP Extraction</button>
+                    </div>
+                    
+                    <!-- Terminal -->
+                    <div class="dsp-terminal-container">
+                        <div id="dsp-progress-container" style="display: none; margin-bottom: 10px;">
+                            <div style="font-size: 0.8rem; margin-bottom: 5px;">Broadcasting Acoustic CDMA Signal... <span id="dsp-progress-text">0.0s</span></div>
+                            <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.2); border-radius: 2px;">
+                                <div id="dsp-progress-bar" style="width: 0%; height: 100%; background: var(--primary-color); border-radius: 2px; transition: width 0.1s linear;"></div>
+                            </div>
+                        </div>
+                        <div class="dsp-terminal" id="dsp-terminal">
+                            Initializing DSP Simulator...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLE Mesh Card -->
+            <div class="glass-card module-card full-width" id="ble-module">
+                <div class="card-header">
+                    <h2>BLE Mesh: Transmit-Only Radio Witness</h2>
+                    <span class="status-badge pass" id="ble-status">READY</span>
+                </div>
+                <p class="description">
+                    Devices broadcast ephemeral keys + nonces on BLE advertising channels.
+                    Each device passively observes other devices' nonces into a Bloom filter,
+                    then signs the filter as a commitment. The verifier builds an N×N adjacency
+                    matrix from unilateral observations — no exchange, no pairing.
+                </p>
+
+                <div class="control-group" style="display:flex;gap:1rem;align-items:center;">
+                    <label>Devices: <input type="range" id="ble-num-devices" min="2" max="20" step="1" value="5" style="width:100px;"></label>
+                    <span class="highlight-val" id="ble-num-devices-val">5</span>
+                    <label>Jammers: <input type="range" id="ble-num-jammers" min="0" max="5" step="1" value="1" style="width:100px;"></label>
+                    <span class="highlight-val" id="ble-num-jammers-val">1</span>
+                    <label style="font-size:0.8rem;">Jammer: <select id="ble-jammer-strategy">
+                        <option value="flood">Flood</option>
+                        <option value="silent">Silent</option>
+                        <option value="spoof">Spoof</option>
+                    </select></label>
+                </div>
+
+                <div class="ble-device-grid" id="ble-device-grid">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="ble-matrix" id="ble-matrix" style="display:none;">
+                    <h4>🧮 Adjacency Matrix</h4>
+                    <div class="matrix-container" id="matrix-container"></div>
+                </div>
+
+                <div class="ble-results" id="ble-results" style="display:none;">
+                    <div class="correlation-grid" id="ble-pair-results"></div>
+                </div>
+
+                <button id="ble-run-btn" class="action-btn" style="margin-top:15px;">Simulate BLE Mesh</button>
+            </div>
+
+            <!-- Spatio-Temporal Mesh Card -->
+            <div class="glass-card module-card full-width" id="stmesh-module">
+                <div class="card-header">
+                    <h2>🌐 Spatio-Temporal Hash-Linked Mesh</h2>
+                    <span class="status-badge pass" id="stmesh-status">READY</span>
+                </div>
+                <p class="description">
+                    Implements a hash-linked beacon chain with Merkle-tree heard sets,
+                    NIST randomness beacon anchoring, and DAG reconstruction. Each device
+                    maintains a self-chain and witnesses neighbors via inclusion proofs.
+                </p>
+
+                <div class="stmesh-controls" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
+                    <label>Devices: <input type="range" id="stmesh-num-devices" min="2" max="5" step="1" value="3" style="width:80px;"></label>
+                    <span class="highlight-val" id="stmesh-num-devices-val">3</span>
+                    <label>Rounds: <input type="range" id="stmesh-num-rounds" min="2" max="10" step="1" value="5" style="width:80px;"></label>
+                    <span class="highlight-val" id="stmesh-num-rounds-val">5</span>
+                </div>
+
+                <button id="stmesh-run-btn" class="action-btn" style="margin-bottom:15px;">▶ Run Spatio-Temporal Mesh</button>
+
+                <div id="stmesh-output" style="display:none;">
+                    <div id="stmesh-beacons" style="margin-bottom:1rem;"></div>
+                    <div id="stmesh-dag-viz" style="background:rgba(0,0,0,0.3);border-radius:8px;padding:1rem;font-family:monospace;font-size:0.75rem;overflow-x:auto;white-space:pre;max-height:500px;"></div>
+                    <div id="stmesh-verify-results" style="margin-top:1rem;"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

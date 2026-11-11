@@ -1,0 +1,91 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: detect-private-key
+        stages: [pre-commit, pre-push]
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        stages: [pre-commit, pre-push]
+  - repo: local
+    hooks:
+      # ── Python ──────────────────────────────────────────────
+      - id: python-tests-fast
+        name: Python tests (fast suite)
+        entry: bash -c 'REALPEEP_TEST_TIMEOUT=15 python3 -m pytest tests/ -q --tb=short -k "not blockchain_anchor and not arms_race"'
+        language: system
+        pass_filenames: false
+        types: [python]
+
+      - id: python-lint
+        name: Python lint (ruff)
+        entry: ruff check .
+        language: system
+        pass_filenames: false
+        types: [python]
+
+      # ── JavaScript ──────────────────────────────────────────
+      - id: js-tests-fast
+        name: JS tests (fast suite, skip DSP extraction)
+        entry: bash -c 'cd realpeep-js && NODE_OPTIONS=--experimental-vm-modules npx jest --no-coverage --testPathIgnorePatterns="app.test.js"'
+        language: system
+        pass_filenames: false
+        types: [javascript]
+
+      - id: js-tests-e2e
+        name: JS tests (e2e suite)
+        entry: bash -c 'cd tests && npm run test-e2e'
+        language: system
+        pass_filenames: false
+        types: [javascript]
+
+      - id: js-syntax
+        name: JS syntax check
+        entry: bash -c 'for f in "$@"; do node --check "$f" 2>&1 || exit 1; done'
+        language: system
+        pass_filenames: true
+        types: [javascript]
+
+      # ── Circom ──────────────────────────────────────────────
+      - id: circuit-artifacts-stale
+        name: Check circuit artifacts are up to date
+        entry: .github/scripts/check-circuit-stale.sh
+        language: system
+        pass_filenames: false
+        files: ^circuit/scrubber\.circom$
+
+      - id: circom-tests
+        name: Circom circuit tests
+        entry: bash -c 'cd circuit && NODE_OPTIONS=--experimental-vm-modules npx mocha tests/**/*.js --timeout 120000'
+        language: system
+        pass_filenames: false
+        types: [javascript]
+
+      # ── Full CI replica (pre-push only) ─────────────────────
+      # The fast hooks above run on commit. This one refuses a push unless the
+      # exact GitHub Actions command (`just ci-local`: install + full suite)
+      # passes locally, so a red CI run does not burn private-repo minutes.
+      - id: ci-local
+        name: GitHub Actions replica (install + full suite)
+        entry: just ci-local
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+# ── CI-only hooks (run manually or in GitHub Actions) ──────────
+#
+# Full test suite including slow integration tests:
+#   pre-commit run --all --hook-stage manual python-tests-full
+#   pre-commit run --all --hook-stage manual js-tests-full
+#
+ci:
+    autofix_commit_msg: |
+        [pre-commit.ci] auto fixes from pre-commit hooks
+    autofix_prs: true
+    autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+    autoupdate_schedule: weekly
+    skip: []

@@ -1,0 +1,14 @@
+[tool.ruff]
+exclude = ["data/experiments/"]
+target-version = "py310"
+
+[tool.ruff.lint]
+# Pin the rule set explicitly. Ruff 0.16 changed its default to "all rules",
+# which turned a previously green tree red without any source change. CI must
+# not depend on a linter's moving default.
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.pytest.ini_options]
+markers = [
+    "network: tests that require network access (e.g. blockchain anchoring, OpenTimestamps).",
+]

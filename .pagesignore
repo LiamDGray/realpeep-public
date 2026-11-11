@@ -1,0 +1,36 @@
+# Cloudflare Pages ignore file — mirrors .gitignore for large/build artifacts
+# https://developers.cloudflare.com/pages/configuration/build-configuration/
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+venv/
+env/
+
+# ZK / Circom build artifacts (can be large, >25MB CF limit)
+circuit/build/
+*.ptau
+*.r1cs
+*.sym
+*.wasm
+*.zkey
+*.wtns
+circuit/node_modules/
+
+# Test data
+data/frames/
+data/experiments/
+
+# Misc
+*.log
+*.txt
+.pytest_cache/
+.ruff_cache/
+.testmondata
+.wrangler/
+.hermes/
+venv/
+realpeep/__pycache__/
+realpeep-js/coverage/

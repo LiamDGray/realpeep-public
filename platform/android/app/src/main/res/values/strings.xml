@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RealPeep</string>
+    <string name="record_button">Record</string>
+    <string name="stop_button">Stop</string>
+    <string name="mesh_status">Mesh: %1$d devices</string>
+    <string name="session_active">Session active</string>
+    <string name="session_idle">Ready</string>
+    <string name="duress_passphrase">Duress passphrase</string>
+    <string name="normal_passphrase">Passphrase</string>
+</resources>

@@ -1,0 +1,22 @@
+{
+    "authentic_capture": {
+        "passed": true,
+        "status": "APPROVED",
+        "reason": "Cryptographic and spatial provenance verified successfully."
+    },
+    "stream_injection": {
+        "passed": false,
+        "status": "REJECTED",
+        "reason": "Untrusted sensor ID (09e4829e57d3a881). Media did not originate from a certified physical sensor."
+    },
+    "reprojection_attack": {
+        "passed": false,
+        "status": "REJECTED",
+        "reason": "Flat surface detected (Planar MSE 0.000001 < 0.005000). Indicates a 2D screen re-projection attack."
+    },
+    "replay_attack": {
+        "passed": false,
+        "status": "REJECTED",
+        "reason": "Nonce mismatch. Expected 7365737369..., got 7365737369... Indicates a session replay attack."
+    }
+}
