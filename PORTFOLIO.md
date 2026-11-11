@@ -20,6 +20,9 @@ hash chain, duress key derivation, and web demo are implemented and tested. On-d
 proof generation, real-time phone audio capture, the chain bridge, and a production
 Android pipeline are not built yet. See [what is real vs simulated](#what-is-real-vs-simulated).
 
+**Demo:** [90-second narrated walkthrough](https://github.com/LiamDGray/realpeep-public/releases/tag/demo-v1)
+— recorded with CPU-only Kokoro TTS, Playwright, and ffmpeg.
+
 ## Why it is substantial
 
 | Evidence | Number / link |

@@ -27,6 +27,9 @@ The only thing it proves is physics — and physics can't be faked.
 > time.
 >
 > **New here?** Start with the five-minute **[portfolio brief](PORTFOLIO.md)**.
+>
+> **Watch:** the **[90-second narrated demo](https://github.com/LiamDGray/realpeep-public/releases/tag/demo-v1)**
+> (1080p; CPU-only Kokoro TTS + Playwright + ffmpeg).
 
 ---
 
