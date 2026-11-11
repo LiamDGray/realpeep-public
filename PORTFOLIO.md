@@ -48,7 +48,7 @@ The build order is deliberately **one vertical slice at a time**:
 The reasoning, budgets, and kill criteria are in
 [docs/roadmap/VERTICAL_SLICES.md](docs/roadmap/VERTICAL_SLICES.md).
 
-**Live task:** [duress v0.1 issue #1](https://github.com/LiamDGray/realpeep-public-public/issues/1)
+**Live task:** [duress v0.1 issue #1](https://github.com/LiamDGray/realpeep-public/issues/1)
 — the red tests and acceptance criteria are ready on the `duress/v0.1-red` branch.
 
 ## Engineering judgment (examples)

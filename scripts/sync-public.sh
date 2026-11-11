@@ -66,7 +66,7 @@ public_slug = sys.argv[2]
 
 readme = root / "README.md"
 s = readme.read_text()
-s = s.replace("LiamDGray/realpeep", public_slug)
+s = re.sub(r"LiamDGray/realpeep(?!-public)", public_slug, s)
 banner = (
     "> **Public mirror.** This is a sanitized snapshot of an active private\n"
     "> development repository. Third-party reference PDFs and deployment\n"
@@ -83,7 +83,7 @@ readme.write_text(s)
 
 portfolio = root / "PORTFOLIO.md"
 p = portfolio.read_text()
-p = p.replace("LiamDGray/realpeep", public_slug)
+p = re.sub(r"LiamDGray/realpeep(?!-public)", public_slug, p)
 p = p.replace(
     "Apache 2.0. Third-party reference PDFs in `ref/` are included for local research only and\n"
     "are not covered by the project license; remove or replace them before redistributing the\n"
@@ -94,7 +94,7 @@ portfolio.write_text(p)
 
 security = root / "SECURITY.md"
 if security.exists():
-    sec = security.read_text().replace("LiamDGray/realpeep", public_slug)
+    sec = re.sub(r"LiamDGray/realpeep(?!-public)", public_slug, security.read_text())
     security.write_text(sec)
 
 wrangler = root / "wrangler.toml"
@@ -120,6 +120,10 @@ wrangler.write_text(w)
     "`gitleaks detect` scan before publication.\n"
 )
 PY
+
+if grep -R --exclude="sync-public.sh" "realpeep-public-public" "$EXPORT_DIR" >/dev/null 2>&1; then
+    die "double-substituted public slug found in export"
+fi
 
 printf '==> Scanning the sanitized tree for secrets\n'
 gitleaks detect --source "$EXPORT_DIR" --no-git --redact --no-banner
