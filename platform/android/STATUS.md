@@ -1,9 +1,9 @@
 # Android app status
 
-**Last verified:** 11 November 2026  
+**Last verified:** 12 November 2026 on the Moto G7 Power (Android 10)  
 **Build:** `./gradlew :app:assembleDebug` — success (debug APK ~64 MB)  
 **Unit tests:** `./gradlew :app:testDebugUnitTest` — **49 tests, 0 failures**  
-**Instrumented tests:** none  
+**Instrumented tests:** 2 on the Moto (PIN state, session overwrite) — see [docs/DEVICE_BASELINE.md](../../docs/DEVICE_BASELINE.md)  
 **CI:** `.github/workflows/android.yml` builds the debug APK and runs the unit tests on changes under `platform/android/`
 
 Toolchain: `minSdk 29`, `compileSdk 34`, `targetSdk 34`, AGP 8.5.2, Kotlin 2.0.10,
@@ -27,7 +27,8 @@ Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
 - BouncyCastle Ed25519 software keys (`EphemeralKey`) and PIN-derived keys
   (`DuressKeys`, 8-bit marker, PBKDF2 100k).
 - JVM unit tests for hash chain, audio chunking, duress key format, Gold codes,
-  Bloom filter, frame chain, and PIN validation.
+  Bloom filter, frame chain, and PIN validation; two instrumented tests for the
+  PIN flow and session overwrite.
 - Installation-wide, encrypted key-derivation salt (Android Keystore-backed
   preferences) so a PIN can be re-derived after a process restart.
 
@@ -40,7 +41,8 @@ Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
   is not bound to a proof.
 - Mesh verification, observation upload, MNR rollup, or OpenTimestamps anchoring.
 - A real video recording file; frames are JPEG-compressed for hashing only.
-- Rust/JNI core, native prover, instrumentation tests, or a device CI lane.
+- Rust/JNI core, native prover, or a device CI lane (the two instrumented tests
+  are run manually on the Moto).
 
 ## Known defects found in this audit
 

@@ -81,32 +81,16 @@ fun RecordScreen(
         }
     }
 
-    // Show PIN dialog
-    if (showPinDialog) {
-        PinEntryDialog(
-            title = "Enter PIN",
-            subtitle = "4-digit passcode required to start recording",
-            confirmLabel = "Start Recording",
-            onConfirm = { pin ->
-                showPinDialog = false
-                if (PinValidator.isValid(pin)) {
-                    onStartRecording(pin)
-                }
-            },
-            onDismiss = {
-                showPinDialog = false
-            }
-        )
-    }
-
     RealPeepTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                // Camera preview (full screen background)
-                if (previewView != null) {
+                // Camera preview (full screen background). Hide it while the
+                // PIN overlay is open: PreviewView is a native AndroidView and
+                // can otherwise sit above the Compose overlay on some devices.
+                if (previewView != null && !showPinDialog) {
                     AndroidView(
                         factory = { previewView },
                         modifier = Modifier.fillMaxSize()
@@ -143,7 +127,8 @@ fun RecordScreen(
                     if (session != null) {
                         Text(
                             text = "Mesh: $meshDeviceCount device${if (meshDeviceCount != 1) "s" else ""}",
-                            fontSize = 48.sp,
+                            fontSize = 24.sp,
+                            maxLines = 1,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
@@ -231,6 +216,24 @@ fun RecordScreen(
                                 shape = MaterialTheme.shapes.small
                             )
                             .padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+                }
+
+                // In-activity overlay; see PinEntryDialog for why this is not a Dialog.
+                if (showPinDialog) {
+                    PinEntryDialog(
+                        title = "Enter PIN",
+                        subtitle = "4-digit passcode required to start recording",
+                        confirmLabel = "Start Recording",
+                        onConfirm = { pin ->
+                            showPinDialog = false
+                            if (PinValidator.isValid(pin)) {
+                                onStartRecording(pin)
+                            }
+                        },
+                        onDismiss = {
+                            showPinDialog = false
+                        }
                     )
                 }
             }

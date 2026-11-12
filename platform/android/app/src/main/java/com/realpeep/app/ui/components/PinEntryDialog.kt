@@ -1,6 +1,8 @@
 package com.realpeep.app.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -13,12 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import com.realpeep.app.model.PinEntryState
+import androidx.activity.compose.BackHandler
 
 /**
  * 4-digit numeric PIN entry dialog.
@@ -34,13 +36,39 @@ fun PinEntryDialog(
     onConfirm: (pin: String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val pinState = remember { PinEntryState() }
+    // Hold the PIN in Compose state. PinEntryState is a plain class, so
+    // mutating it does not trigger recomposition; the dots and the Start button
+    // would stay visually disabled even after four taps.
+    var pin by remember { mutableStateOf("") }
+    val maskedDisplay = "●".repeat(pin.length)
+    val isComplete = pin.length == 4
+    BackHandler(onBack = onDismiss)
 
-    Dialog(onDismissRequest = onDismiss) {
+    // Render as an in-activity overlay rather than a platform Dialog. On the
+    // Moto G7 Power / Android 10 the Dialog window receives key events but not
+    // touch events, leaving the keypad unusable. An overlay stays in the
+    // activity's window and avoids that platform/Compose interaction.
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.6f)),
+        contentAlignment = Alignment.Center
+    ) {
+        // Tap outside the card to dismiss.
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
+                )
+        )
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(24.dp),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
@@ -74,27 +102,32 @@ fun PinEntryDialog(
 
                 // PIN dots display
                 PinDotsDisplay(
-                    maskedDisplay = pinState.maskedDisplay,
-                    isComplete = pinState.isComplete
+                    maskedDisplay = maskedDisplay,
+                    isComplete = isComplete
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Numeric keypad
                 NumericKeypad(
-                    onDigit = { pinState.appendDigit(it) },
-                    onBackspace = { pinState.removeLastDigit() }
+                    onDigit = { digit ->
+                        if (pin.length < 4 && digit.isDigit()) pin += digit
+                    },
+                    onBackspace = {
+                        if (pin.isNotEmpty()) pin = pin.dropLast(1)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Confirm button
                 Button(
-                    onClick = { onConfirm(pinState.pin) },
-                    enabled = pinState.isComplete,
+                    onClick = { onConfirm(pin) },
+                    enabled = isComplete,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp),
+                        .height(48.dp)
+                        .testTag("pin-start"),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
@@ -207,7 +240,9 @@ private fun KeypadButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier.size(64.dp),
+        modifier = Modifier
+            .size(64.dp)
+            .testTag("pin-key-$label"),
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surface,

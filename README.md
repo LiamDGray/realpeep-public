@@ -208,6 +208,7 @@ just demo
 | [docs/roadmap/VERTICAL_SLICES.md](docs/roadmap/VERTICAL_SLICES.md) | Build order: duress first, then on-device ZK |
 | [docs/roadmap/NATIVE_HARDENING_PLAN.md](docs/roadmap/NATIVE_HARDENING_PLAN.md) | Native Android hardening + Rust core plan |
 | [docs/research/NATIVE_PROVER_DECISION.md](docs/research/NATIVE_PROVER_DECISION.md) | rapidsnark vs ark-circom vs warm snarkjs |
+| [docs/DEVICE_BASELINE.md](docs/DEVICE_BASELINE.md) | Moto G7 Power native + Chrome proof baseline |
 | [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) | Full implementation plan & milestones |
 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 90-second walkthrough (clicks + narration) |
 | [docs/DEMO_RECORDING.md](docs/DEMO_RECORDING.md) | FOSS, CPU-only recording pipeline (Kokoro + Playwright + ffmpeg) |
