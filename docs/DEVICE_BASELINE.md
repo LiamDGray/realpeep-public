@@ -152,8 +152,9 @@ RealPeep.Scanner: Observed beacon from short (unsigned presence)
 | Moto G7 Power | short legacy (BT 4.2) | saw Pixel | **553 frames, 375 audio chunks, Mesh: 1** |
 | Pixel 8a | extended + short legacy | saw Moto | **1,188 frames, 404 audio chunks, Mesh: 1** |
 
-Both screens showed **`Mesh: 1 device`**, TX/RX active, and live camera
-previews. This validates the mixed-generation mesh path for the demo. After
+Full extended beacons are now signature-verified by the scanner; the short
+legacy beacon remains unsigned by design. Both screens showed
+**`Mesh: 1 device`**, TX/RX active, and live camera previews. This validates the mixed-generation mesh path for the demo. After
 rotating/refreshing sessions, both still count one device because the tag is
 stable.
 
@@ -176,3 +177,27 @@ alignment, producing the Android 17 compatibility warning. CameraX **1.4.2**
 ships the same libraries with `0x4000` alignment; the app was upgraded with no
 SDK/AGP change. The Pixel now launches with no 16 KB warning, and
 `scripts/check-16kb.sh` verifies every native LOAD segment in the built APK.
+
+
+## x86_64 emulator validation
+
+An API 29 (`pixel29`) x86_64 AVD booted with KVM. `connectedDebugAndroidTest`
+ran **6/6** tests, including the native SHA-256/frame/Merkle parity tests and
+the hardware-attestation test. This validates the x86_64 `librealpeep_core.so`
+and the non-arm64 `jniLibs` packaging; emulator camera/BLE behavior is not
+claimed.
+
+## Hardware attestation on the Moto
+
+`HardwareAttestationManager` generated a Keystore EC P-256 key and signed a
+canonical session payload. The Moto log reports:
+
+```text
+RealPeep.Attestation: StrongBox unavailable; falling back to TEE/secure hardware
+RealPeep.Main: Attestation hardwareBacked=true strongBox=false
+```
+
+The attestation is a separate hardware signal over the session id and ephemeral
+public key. It is **not** the Ed25519 proof key and is not bound in-circuit.
+StrongBox could not be exercised because the Pixel was unavailable; the code
+prefers it when the device supports it.

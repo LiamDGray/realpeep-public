@@ -14,6 +14,8 @@ data class Session(
     var meshDeviceCount: Int = 0,
     var frameCount: Int = 0,
     var isDuress: Boolean = false,
+    var hardwareBacked: Boolean = false,
+    var strongBox: Boolean = false,
 )
 
 /**

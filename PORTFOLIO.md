@@ -133,7 +133,7 @@ just ci
 | Browser-camera preview | **Optional UI preview only**; labelled not attested; falls back to simulation |
 | Real client-side proof | **Prototype**; real frame hashing + EdDSA + Groth16 in a browser worker; demo TEE key, dev zkey |
 | Android app | **Prototype**; CameraX/audio/BLE, unit + instrumented tests, Android CI; no on-device ZK/TEE |
-| Native core | **Prototype**; Rust `cdylib` over JNI for frame hashing/Merkle, 16 KB aligned, device parity tests |
+| Native core | **Prototype**; Rust `cdylib` over JNI for frame hashing/Merkle, all four Android ABIs, 16 KB aligned, arm64/x86_64 device parity tests; TEE-backed session attestation on Android 10 |
 | Duress v0.1 | **Reference**; exact transcript-bound tags, 2-of-3 notary, replay state; demo-only limits documented |
 | On-device ZK proving | **Not built** |
 | Real-time phone audio capture | **Not built** |

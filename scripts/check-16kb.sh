@@ -23,8 +23,12 @@ status=0
 for so in "${libs[@]}"; do
     while IFS= read -r align; do
         [[ -z "$align" ]] && continue
-        if (( align < 0x4000 )); then
-            echo "NOT 16 KB ALIGNED: $so (LOAD align $align)" >&2
+        minimum=0x1000
+        case "$so" in
+            */arm64-v8a/*|*/x86_64/*) minimum=0x4000 ;;
+        esac
+        if (( align < minimum )); then
+            echo "NOT ALIGNED: $so (LOAD align $align, need $minimum)" >&2
             status=1
         else
             echo "OK $so (LOAD align $align)"

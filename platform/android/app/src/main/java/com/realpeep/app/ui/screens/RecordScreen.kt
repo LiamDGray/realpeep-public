@@ -146,6 +146,7 @@ fun RecordScreen(
                         ) {
                             StatusChip("TX", isAdvertising)
                             StatusChip("RX", isScanning)
+                            StatusChip("HW", session?.hardwareBacked == true)
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))

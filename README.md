@@ -208,6 +208,7 @@ just demo
 | [docs/roadmap/VERTICAL_SLICES.md](docs/roadmap/VERTICAL_SLICES.md) | Build order: duress first, then on-device ZK |
 | [docs/roadmap/NATIVE_HARDENING_PLAN.md](docs/roadmap/NATIVE_HARDENING_PLAN.md) | Native Android hardening + Rust core plan |
 | [docs/roadmap/NATIVE_EXECUTION_PLAN.md](docs/roadmap/NATIVE_EXECUTION_PLAN.md) | Executed 16 KB → mesh → duress → Rust/JNI plan |
+| [docs/roadmap/NATIVE_LIMITS_PLAN.md](docs/roadmap/NATIVE_LIMITS_PLAN.md) | All-ABI native core, emulator, TEE attestation, remaining limits |
 | [docs/research/NATIVE_PROVER_DECISION.md](docs/research/NATIVE_PROVER_DECISION.md) | rapidsnark vs ark-circom vs warm snarkjs |
 | [docs/research/DURESS_V01_SPEC.md](docs/research/DURESS_V01_SPEC.md) | Duress v0.1: exact transcript-bound tag, 2-of-3 notary, replay state |
 | [docs/DEVICE_BASELINE.md](docs/DEVICE_BASELINE.md) | Moto G7 Power native + Chrome proof baseline |

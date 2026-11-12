@@ -8,6 +8,7 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
+import com.realpeep.app.crypto.EphemeralKey
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -140,6 +141,13 @@ class BleScanner(private val context: Context) {
             // Prefer the full signed beacon; fall back to the 21-byte short
             // presence beacon used when extended advertising is unavailable.
             val full = Beacon.deserialize(serviceData)
+            if (full != null) {
+                val message = full.publicKey + full.nonce + full.meshId
+                if (!EphemeralKey.verify(full.publicKey, message, full.signature)) {
+                    Log.w(TAG, "Rejected full beacon with invalid signature")
+                    return
+                }
+            }
             val short = if (full == null) ShortBeacon.deserialize(serviceData) else null
             val nonce = full?.nonce ?: short?.nonce ?: return
             // Count devices, not rotating nonces. Full beacons carry the
@@ -156,7 +164,7 @@ class BleScanner(private val context: Context) {
                 observedDevices.observe(deviceId)
                 _deviceCount.value = observedDevices.count
                 val source = if (full != null) {
-                    "full ${full.publicKey.take(4).joinToString("") { "%02x".format(it) }}..."
+                    "full signed ${full.publicKey.take(4).joinToString("") { "%02x".format(it) }}..."
                 } else {
                     "short (unsigned presence)"
                 }

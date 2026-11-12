@@ -1,14 +1,14 @@
 # Android app status
 
 **Last verified:** 12 November 2026 on the Moto G7 Power (Android 10) and Pixel 8a (Android 17)  
-**Build:** `./gradlew :app:assembleDebug` — success (debug APK ~64 MB)  
-**Unit tests:** `./gradlew :app:testDebugUnitTest` — **52 tests, 0 failures**  
-**Instrumented tests:** 5 on the Moto (PIN, storage, native core); 4 on the Pixel (PIN Compose test skipped on API 37) — see [docs/DEVICE_BASELINE.md](../../docs/DEVICE_BASELINE.md)  
+**Build:** `./gradlew :app:assembleDebug` — success (debug APK ~65 MB, four native ABIs)  
+**Unit tests:** `./gradlew :app:testDebugUnitTest` — **53 tests, 0 failures**  
+**Instrumented tests:** 6 on the Moto and 6 on the API 29 x86_64 emulator; 4 on the Pixel (PIN Compose test skipped on API 37) — see [docs/DEVICE_BASELINE.md](../../docs/DEVICE_BASELINE.md)  
 **CI:** `.github/workflows/android.yml` builds the debug APK and runs the unit tests on changes under `platform/android/`
 
 Toolchain: `minSdk 29`, `compileSdk 34`, `targetSdk 34`, AGP 8.5.2, Kotlin 2.0.10,
 Gradle 8.7, JDK 21, CameraX 1.4.2, Compose BOM 2024.06.00, NDK r28c,
-Rust `realpeep-core` (arm64 JNI).
+Rust `realpeep-core` (arm64-v8a, armeabi-v7a, x86_64, x86 JNI).
 
 > This is a **working capture scaffold**, not a production provenance client. It
 > captures camera/audio/BLE data and hashes it, but it does **not** generate a ZK
@@ -24,11 +24,15 @@ Rust `realpeep-core` (arm64 JNI).
 - BLE advertising and scanning with Ed25519-signed beacons (extended
   advertising) plus a **23-byte legacy fallback** carrying a stable 4-byte
   device tag. Extended-capable phones also emit the short legacy beacon, so a
-  BT 4.2 phone can see them. The scanner counts distinct device tags, not
-  rotating nonces. Extended capability is checked from the controller.
-- Rust `realpeep-core` built as an arm64 `cdylib` and loaded over JNI for
-  SHA-256 frame hashing and Merkle roots, with a Kotlin fallback and
-  instrumented parity tests.
+  BT 4.2 phone can see them. The scanner verifies full beacon signatures and
+  counts distinct device tags, not rotating nonces. Extended capability is
+  checked from the controller.
+- Rust `realpeep-core` built as a `cdylib` for **all four Android ABIs** and
+  loaded over JNI for SHA-256 frame hashing and Merkle roots, with a Kotlin
+  fallback and instrumented parity tests on arm64 and x86_64.
+- Hardware-backed Android Keystore attestation over the session id and
+  ephemeral public key; StrongBox is preferred, TEE/secure hardware is the
+  fallback. The Moto reports `hardwareBacked=true, strongBox=false`.
 - Android Keystore-backed AES-256-GCM encrypted offline storage.
 - BouncyCastle Ed25519 software keys (`EphemeralKey`) and PIN-derived keys
   (`DuressKeys`, 8-bit marker, PBKDF2 100k).

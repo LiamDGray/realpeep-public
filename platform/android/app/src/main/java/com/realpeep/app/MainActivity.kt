@@ -13,6 +13,7 @@ import com.realpeep.app.audio.AudioRecorder
 import com.realpeep.app.camera.FrameCaptureService
 import com.realpeep.app.crypto.DuressKeys
 import com.realpeep.app.crypto.EphemeralKey
+import com.realpeep.app.crypto.HardwareAttestationManager
 import com.realpeep.app.mesh.BleAdvertiser
 import com.realpeep.app.mesh.BleScanner
 import com.realpeep.app.mesh.MeshForegroundService
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var offlineBundle: OfflineBundle
     private lateinit var frameCaptureService: FrameCaptureService
     private lateinit var audioRecorder: AudioRecorder
+    private lateinit var hardwareAttestation: HardwareAttestationManager
 
     private var session: Session? = null
     private val observationBundles = mutableListOf<ObservationBundle>()
@@ -48,6 +50,7 @@ class MainActivity : ComponentActivity() {
         offlineBundle = OfflineBundle(this)
         frameCaptureService = FrameCaptureService(this, this)
         audioRecorder = AudioRecorder()
+        hardwareAttestation = HardwareAttestationManager()
         // COMPATIBLE uses a TextureView instead of a SurfaceView. SurfaceView
         // inside Compose AndroidView can render behind the Compose surface on
         // some devices (the Moto G7 Power showed a black preview).
@@ -128,6 +131,19 @@ class MainActivity : ComponentActivity() {
             )
             session = newSession
 
+            // Hardware attestation is a separate signal over the session id and
+            // ephemeral public key. It is not the Ed25519 proof key and is not
+            // bound in-circuit; the 4-digit PIN remains demo material.
+            val attestation = try {
+                hardwareAttestation.attest(newSession.sessionId, keyPair.publicKey)
+            } catch (error: Exception) {
+                Log.w(TAG, "hardware attestation unavailable: ${error.message}")
+                null
+            }
+            newSession.hardwareBacked = attestation?.hardwareBacked == true
+            newSession.strongBox = attestation?.strongBox == true
+            Log.i(TAG, "Attestation hardwareBacked=${newSession.hardwareBacked} strongBox=${newSession.strongBox}")
+
             Log.i(TAG, "Starting session ${newSession.sessionId} with PIN-derived key")
 
             // ── Start BLE mesh AFTER PIN is entered ──
@@ -148,6 +164,14 @@ class MainActivity : ComponentActivity() {
                 put("meshId", meshId.toHex())
                 put("publicKey", keyPair.publicKey.toHex())
                 put("startedAt", newSession.startedAt)
+                put("hardwareBacked", newSession.hardwareBacked)
+                put("strongBox", newSession.strongBox)
+                attestation?.let {
+                    put("attestation", JSONObject().apply {
+                        put("signature", it.signatureBase64())
+                        put("certificate", it.certificateBase64())
+                    })
+                }
             }
             offlineBundle.storeSession(sessionJson)
         }
