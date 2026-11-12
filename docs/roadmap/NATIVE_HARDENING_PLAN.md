@@ -32,14 +32,15 @@ This is deliberately a **hardening slice**, not a four-layer rewrite.
 | 2 | PIN/key lifecycle | **Done (partial)** | installation salt stored in Keystore-backed prefs; same PIN re-derives after restart |
 | 3 | Android CI | **Done** | `.github/workflows/android.yml` runs unit tests + `assembleDebug` on Android changes |
 | 4 | Device test harness | **Done** | `scripts/android-device-test.sh` installs, grants permissions, launches, and can open the JS baseline via `adb reverse` |
-| 5 | BLE advertisement size | **Implemented; needs device validation** | capability-gated extended advertising with one rotating set; 21-byte unsigned legacy fallback; scanner accepts both |
+| 5 | BLE advertisement size | **Done** | extended + short legacy dual advertising; Moto and Pixel each report **Mesh: 1** |
 | 6 | Normal/duress PIN enrollment | **Next** | two PINs, explicit mode, no visible difference; still demo-grade until notary exists |
+| 13 | Pixel 16 KB compatibility | **Next** | upgrade CameraX/AGP or remove unused image-processing native lib; verify with `readelf -lW` |
 | 7 | Instrumented smoke test | **Partial** | 3 instrumented tests pass on the Moto (PIN flow, session overwrite, bundle preservation); camera/audio/BLE instrumentation still to add |
 | 8 | Rust core primitives | **Done (isolated)** | `rust/realpeep-core` with 20 tests, fmt/clippy clean; not wired to app |
 | 9 | Rust CI | **Done** | `.github/workflows/rust.yml` runs fmt/clippy/test on `rust/**` |
 | 10 | Rust FFI/WASM | **Planned** | UniFFI/JNI + wasm-bindgen; vectors match Python/JS/Kotlin |
 | 11 | Native prover decision | **Research complete** | [memo](../research/NATIVE_PROVER_DECISION.md): rapidsnark via JNI for Android; keep warm snarkjs for browser; ark-circom fallback |
-| 12 | Moto JS baseline | **Done** | 11–13 s total, 7.5–9.5 s prove, verified; no tab crash; see [DEVICE_BASELINE](../DEVICE_BASELINE.md) |
+| 12 | Moto + Pixel JS baseline | **Done** | Moto 11–13 s; Pixel 4.7–5.3 s; both verified; see [DEVICE_BASELINE](../DEVICE_BASELINE.md) |
 
 ## Why these first
 

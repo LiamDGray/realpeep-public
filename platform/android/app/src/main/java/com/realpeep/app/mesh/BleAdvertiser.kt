@@ -61,6 +61,9 @@ class BleAdvertiser(private val context: Context) {
     @Volatile
     private var extendedSupported = false
 
+    @Volatile
+    private var legacyStarted = false
+
     /**
      * Start advertising presence beacons for a recording session.
      *
@@ -86,6 +89,9 @@ class BleAdvertiser(private val context: Context) {
         advertisingJob = scope.launch(Dispatchers.Default) {
             if (extendedSupported) {
                 startExtended(fullData(buildBeacon(keyPair, meshId)))
+                // Also publish the short legacy beacon so mixed-generation
+                // devices (e.g. the Bluetooth 4.2 Moto) can see this phone.
+                startShortLegacy(buildBeacon(keyPair, meshId))
                 while (isActive && _isAdvertising.value && extendedSupported) {
                     delay(intervalMs())
                     val data = fullData(buildBeacon(keyPair, meshId))
@@ -101,9 +107,12 @@ class BleAdvertiser(private val context: Context) {
             }
 
             if (isActive && _isAdvertising.value) {
-                // Legacy-only controller: one 21-byte presence beacon is enough.
-                // It is explicitly unsigned; the scanner signs its own bundle.
-                startShortLegacy(buildBeacon(keyPair, meshId))
+                // Legacy-only controller (or extended failure): one 21-byte
+                // presence beacon is enough. It is explicitly unsigned; the
+                // scanner signs its own bundle.
+                if (!legacyStarted) {
+                    startShortLegacy(buildBeacon(keyPair, meshId))
+                }
                 while (isActive && _isAdvertising.value) delay(1000)
                 stopCurrentAdvertising()
             }
@@ -189,12 +198,14 @@ class BleAdvertiser(private val context: Context) {
 
         try {
             advertiser?.startAdvertising(settings, data, legacyCallback)
+            legacyStarted = true
         } catch (error: Exception) {
             Log.e(TAG, "Legacy short advertising failed: ${error.message}")
         }
     }
 
     private fun stopCurrentAdvertising() {
+        legacyStarted = false
         try {
             if (activeSet != null) {
                 advertiser?.stopAdvertisingSet(extendedCallback)

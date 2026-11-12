@@ -1,6 +1,6 @@
 # Android app status
 
-**Last verified:** 12 November 2026 on the Moto G7 Power (Android 10)  
+**Last verified:** 12 November 2026 on the Moto G7 Power (Android 10) and Pixel 8a (Android 17)  
 **Build:** `./gradlew :app:assembleDebug` — success (debug APK ~64 MB)  
 **Unit tests:** `./gradlew :app:testDebugUnitTest` — **49 tests, 0 failures**  
 **Instrumented tests:** 3 on the Moto (PIN state, session overwrite, bundle preservation) — see [docs/DEVICE_BASELINE.md](../../docs/DEVICE_BASELINE.md)  
@@ -22,7 +22,8 @@ Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
   `HashChain`.
 - BLE advertising and scanning with Ed25519-signed beacons (extended
   advertising) plus a 21-byte legacy fallback, a Bloom filter, and observation
-  bundles. Extended capability is checked from the controller, not the API level.
+  bundles. Extended-capable phones now also emit the short legacy beacon, so a
+  BT 4.2 phone can see them. Extended capability is checked from the controller.
 - Android Keystore-backed AES-256-GCM encrypted offline storage.
 - BouncyCastle Ed25519 software keys (`EphemeralKey`) and PIN-derived keys
   (`DuressKeys`, 8-bit marker, PBKDF2 100k).
@@ -75,9 +76,10 @@ Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
    `ServiceCompat.startForeground(..., CONNECTED_DEVICE)`. On Android 13+ the
    notification may still be hidden if the user denies it; recording is not
    blocked.
-7. **Target SDK is 34, not Android 17/API 36.** The Pixel 8a can run it in
-   compatibility mode, but Play requirements, 16 KB page-size native libraries,
-   and newer permission behavior are not configured.
+7. **Target SDK is 34, not Android 17/API 37.** The Pixel 8a runs it, but shows
+   a 16 KB page-size warning for CameraX's
+   `libimage_processing_util_jni.so`. Upgrade CameraX/AGP before claiming
+   Android 17 support.
 
 ## What to test on the Moto XT1955-5 (Android 10, 3 GB)
 

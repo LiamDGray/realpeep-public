@@ -1,12 +1,12 @@
-# Device baseline: Moto G7 Power
+# Device baselines: Moto G7 Power + Pixel 8a
 
 **Measured:** 12 November 2026  
-**Device:** `moto g(7) power` (`XT1955-5`, codename `ocean`)  
+**Devices:** `moto g(7) power` (`XT1955-5`, codename `ocean`) and Pixel 8a (`akita`)  
 **OS:** Android 10 / API 29, arm64-v8a, 720×1520, 3 GB RAM  
 **Chrome:** 146.0.7680.177  
 **Bluetooth:** 4.2 class (no extended-advertising path observed)  
-**Battery/thermal at start:** 67%, 28.7 °C, thermal status 0  
-**Battery/thermal after:** 70% (charging), 28.7 °C, thermal status 0
+**Moto battery/thermal:** 67% at start, 71% after, 28.7 °C, thermal status 0  
+**Pixel battery/thermal:** 37% at start, 39% after, 30.7 °C, thermal status 0
 
 ## Native app
 
@@ -19,10 +19,10 @@ Built, installed, and run from `platform/android`.
 | Second recording session | works after fixing the `session.json` overwrite crash |
 | BLE advertising | **`Short legacy advertising started`** — the 21-byte fallback, as expected on BT 4.2 |
 | BLE scanning | `onScannerRegistered() status=0`; no scan failure |
-| Mesh devices | 0 (no second device in range; peer test not performed) |
-| Stop/cleanup | Final session stopped cleanly: `Frames: 377, Audio chunks: 257, Mesh devices: 0` |
+| Mesh devices | **1** in the two-device test with the Pixel 8a |
+| Stop/cleanup | Final Moto session stopped cleanly: `Frames: 377, Audio chunks: 257, Mesh devices: 0` (pre-peer); two-device session: `Frames: 553, Audio chunks: 375, Mesh devices: 1` |
 | PIN UX | four digits fill the dots, Start enables, session starts |
-| Camera preview | **confirmed working** after switching `PreviewView` to `COMPATIBLE` (TextureView); a live frame showed the curtain/bookshelf scene, and the final recording had 377 frames / 257 audio chunks. |
+| Camera preview | **confirmed working** after switching `PreviewView` to `COMPATIBLE` (TextureView); a live frame showed the curtain/bookshelf scene. |
 
 ### Bugs found and fixed during this run
 
@@ -49,10 +49,13 @@ Built, installed, and run from `platform/android`.
 
 ```
 ./gradlew :app:connectedDebugAndroidTest
-Starting 2 tests on moto g(7) power - 10
-Finished 2 tests on moto g(7) power - 10
+Starting 3 tests on moto g(7) power - 10
+Finished 3 tests on moto g(7) power - 10
 BUILD SUCCESSFUL
 ```
+
+The PIN test needs the device to be unlocked; on the lock screen it reports
+`No compose hierarchies found` even though the storage tests pass.
 
 ## JS proof in Chrome on the Moto
 
@@ -81,11 +84,12 @@ which is Chrome's capped value and not a useful peak-heap measurement.
 - **The native prover is not urgent for the demo.** It is still the right path
   for a production Android client (rapidsnark via JNI), but the current Android
   app has no ZK integration at all.
-- **The Moto confirms the legacy BLE fallback works.** A true mesh test needs a
-  second Android device; the current result only proves local advertising and
-  scanning start successfully.
-- **Camera preview needs a visual check** before claiming the native capture UX
-  works; the frame/audio hash chains do advance.
+- **The mixed-generation mesh works:** both phones see each other when the
+  extended-capable phone also emits the short legacy beacon.
+- **Camera preview is verified** on both phones; the earlier black frames were
+  physical camera coverage, confirmed with the stock camera app.
+- **Pixel 8a is the faster demo target**, but its CameraX native library needs a
+  16 KB-page compatibility fix before production.
 
 ## Reproduce
 
@@ -106,3 +110,60 @@ node benchmark_android.mjs --webcam --runs 1
 ```
 
 The benchmark script is [demo/recording/benchmark_android.mjs](../demo/recording/benchmark_android.mjs).
+
+
+## Two-device mesh test (Moto + Pixel 8a)
+
+The Pixel 8a runs Android 17 / API 37, Chrome 157.0.8103.50, 1080×2400.
+The Moto was reachable over Wi-Fi ADB (`192.168.1.169:5555`) so both phones
+could run at once.
+
+### Advertising fix
+
+The Moto cannot receive extended advertising. The Pixel originally advertised
+only the 117-byte extended beacon, so the Pixel saw the Moto but the Moto saw
+nothing. `BleAdvertiser` now starts the 21-byte legacy presence beacon **in
+addition** to the extended beacon on capable devices. On the Pixel the log
+shows:
+
+```text
+RealPeep.Advertiser: Extended advertising started (txPower=-7)
+RealPeep.Advertiser: Short legacy advertising started
+RealPeep.Scanner: Observed beacon from short (unsigned presence)
+```
+
+### Result
+
+| Device | Advertising | Scanner | Session result |
+|---|---|---|---|
+| Moto G7 Power | short legacy (BT 4.2) | saw Pixel | **553 frames, 375 audio chunks, Mesh: 1** |
+| Pixel 8a | extended + short legacy | saw Moto | **1,188 frames, 404 audio chunks, Mesh: 1** |
+
+Both screens showed **`Mesh: 1 device`**, TX/RX active, and live camera
+previews. This validates the mixed-generation mesh path for the demo.
+
+## Pixel 8a JS proof
+
+Same page and long-lived worker, driven over Chrome DevTools Protocol.
+
+| Run | Prove | Verify | Total | Result |
+|---|---:|---:|---:|---|
+| Clip, cold | **2,667 ms** | 31 ms | **5,299 ms** | verified |
+| Clip, warm | **2,077 ms** | 37 ms | **4,689 ms** | verified |
+
+The Pixel is roughly **2.4× faster** than the Moto end-to-end and is comfortably
+usable for the demo.
+
+## Pixel 16 KB page-size warning
+
+On first launch the Pixel showed:
+
+```text
+This app isn't 16 KB compatible. LOAD segment alignment check failed.
+lib/arm64-v8a/libimage_processing_util_jni.so : LOAD segment not aligned
+```
+
+The debug app runs after dismissing the warning, including camera preview and
+the mesh test. This is the CameraX 1.3.4 native image-processing library. Before
+calling Android 17 supported, upgrade CameraX/AGP (or remove the unused image
+processing dependency) and verify with `readelf -lW` and a 16 KB device.
