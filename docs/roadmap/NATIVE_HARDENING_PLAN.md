@@ -38,7 +38,7 @@ This is deliberately a **hardening slice**, not a four-layer rewrite.
 | 8 | Rust core primitives | **Done (isolated)** | `rust/realpeep-core` with 20 tests, fmt/clippy clean; not wired to app |
 | 9 | Rust CI | **Done** | `.github/workflows/rust.yml` runs fmt/clippy/test on `rust/**` |
 | 10 | Rust FFI/WASM | **Planned** | UniFFI/JNI + wasm-bindgen; vectors match Python/JS/Kotlin |
-| 11 | Native prover decision | **Research** | memo comparing rapidsnark / ark-circom / snarkjs; Android/WASM benchmark plan |
+| 11 | Native prover decision | **Research complete** | [memo](../research/NATIVE_PROVER_DECISION.md): rapidsnark via JNI for Android; keep warm snarkjs for browser; ark-circom fallback |
 | 12 | Moto JS baseline | **Waiting on device** | prove/verify/total ms, heap, tab survival, thermal notes |
 
 ## Why these first
