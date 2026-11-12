@@ -266,6 +266,28 @@
                         <span>Standard proof — no flag. User generated this freely.</span>
                     </div>
                 </div>
+
+                <!-- Optional real proof path (separate from the animation above) -->
+                <div class="real-proof-panel" id="real-proof-panel">
+                    <div class="real-proof-header">
+                        <strong>Real client-side proof</strong>
+                        <span class="real-proof-tag">optional · demo TEE key · not hardware-attested</span>
+                    </div>
+                    <p class="real-proof-desc">
+                        Runs the real path in a worker: 20 frames from the public-domain clip →
+                        SHA-256 Merkle root → EdDSA-Poseidon signature → Groth16 proof → verify.
+                        The mesh and OpenTimestamps layers are not included.
+                    </p>
+                    <div class="real-proof-body">
+                        <video id="real-proof-video" src="assets/public-domain/nasa-earth-iss-5s.mp4" muted loop playsinline></video>
+                        <div class="real-proof-controls">
+                            <button id="real-proof-btn" class="action-btn">Generate real proof</button>
+                            <div class="real-proof-status" id="real-proof-status">Idle.</div>
+                            <div class="real-proof-timings" id="real-proof-timings"></div>
+                        </div>
+                    </div>
+                    <pre class="real-proof-output" id="real-proof-output" hidden></pre>
+                </div>
             </div>
 
 <!-- P0b: Mesh Witness Card — Transmit-Only Acoustic Mesh -->
@@ -616,6 +638,7 @@
 
         </main>
     </div>
+    <script src="vendor/zk-kit.bundle.js"></script>
     <script type="module" src="app.js"></script>
 </body>
 </html>

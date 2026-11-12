@@ -2155,3 +2155,98 @@ td.matrix-diag { background: transparent; color: var(--text-muted); }
     70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
 }
+
+/* ── Optional real client-side proof panel ─────────────────────── */
+
+.real-proof-panel {
+    margin-top: 1.5rem;
+    padding: 1.1rem 1.2rem;
+    border: 1px solid rgba(0, 210, 255, 0.22);
+    border-radius: 12px;
+    background: rgba(0, 210, 255, 0.035);
+}
+
+.real-proof-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.real-proof-header strong {
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.real-proof-tag {
+    font-size: 0.7rem;
+    color: var(--warn-color);
+    border: 1px solid rgba(255, 179, 0, 0.3);
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    white-space: nowrap;
+}
+
+.real-proof-desc {
+    margin: 0 0 0.9rem;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.real-proof-body {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+.real-proof-body video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #000;
+}
+
+.real-proof-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.real-proof-status {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-height: 1.2rem;
+}
+
+.real-proof-timings {
+    font-family: "Courier New", monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.real-proof-output {
+    margin: 0.9rem 0 0;
+    max-height: 220px;
+    overflow: auto;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (max-width: 720px) {
+    .real-proof-body {
+        grid-template-columns: 1fr;
+    }
+}

@@ -44,7 +44,7 @@
   <p class="sub">
     This page hashes frames from a public-domain NASA clip (or your webcam), builds a
     Merkle root, signs that root with a <strong>demo</strong> EdDSA-Poseidon key, and
-    generates and verifies a Groth16 proof in the browser. It is the real proof path,
+    generates and verifies a Groth16 proof in a worker. It is the real proof path,
     not the animated simulation in the main demo.
   </p>
   <p class="warnbox">
@@ -67,7 +67,7 @@
         <li><strong>Capture frames</strong><span class="val" id="t-capture">—</span></li>
         <li><strong>SHA-256 frame chain / Merkle root</strong><span class="val" id="t-hash">—</span></li>
         <li><strong>Demo TEE signature + witness</strong><span class="val" id="t-sign">—</span></li>
-        <li><strong>Groth16 prove (browser WASM)</strong><span class="val" id="t-prove">—</span></li>
+        <li><strong>Groth16 prove (worker, WASM)</strong><span class="val" id="t-prove">—</span></li>
         <li><strong>Verify</strong><span class="val" id="t-verify">—</span></li>
         <li><strong>Total</strong><span class="val" id="t-total">—</span></li>
       </ol>

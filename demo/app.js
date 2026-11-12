@@ -1,3 +1,5 @@
+import { runRealProof, prepareClip } from './real-proof-core.js';
+
 // DOM short-hands
 const $ = id => document.getElementById(id);
 
@@ -1457,6 +1459,73 @@ elSTMesh.btn.addEventListener('click', async () => {
     elSTMesh.status.className = `status-badge ${allChainsValid ? 'pass' : 'warn'}`;
     elSTMesh.btn.disabled = false;
 });
+
+// ===================================================================
+// Optional real client-side proof panel
+// ===================================================================
+const elRealProof = {
+    panel: $('real-proof-panel'),
+    video: $('real-proof-video'),
+    btn: $('real-proof-btn'),
+    status: $('real-proof-status'),
+    timings: $('real-proof-timings'),
+    output: $('real-proof-output'),
+};
+let realProofBusy = false;
+
+if (elRealProof.btn) {
+    const realProofCanvas = document.createElement('canvas');
+    realProofCanvas.width = 320;
+    realProofCanvas.height = 180;
+
+    elRealProof.btn.addEventListener('click', async () => {
+        if (realProofBusy) return;
+        realProofBusy = true;
+        elRealProof.btn.disabled = true;
+        elRealProof.status.textContent = 'Loading clip…';
+        elRealProof.timings.textContent = '';
+        elRealProof.output.hidden = true;
+        try {
+            await prepareClip(elRealProof.video);
+            const result = await runRealProof({
+                video: elRealProof.video,
+                canvas: realProofCanvas,
+                source: 'clip',
+                onProgress: (event) => {
+                    if (event.stage === 'capture') {
+                        elRealProof.status.textContent = `Capturing frames… ${event.index}/${event.total}`;
+                    } else if (event.stage === 'hash') {
+                        elRealProof.status.textContent = 'Building SHA-256 Merkle root…';
+                    } else if (event.stage === 'sign') {
+                        elRealProof.status.textContent = 'Signing frame commitment with demo TEE key…';
+                    } else if (event.stage === 'prove') {
+                        elRealProof.status.textContent = event.message ? `Proving in worker… ${event.message}` : 'Proving in worker…';
+                    } else if (event.stage === 'verify') {
+                        elRealProof.status.textContent = 'Verifying proof…';
+                    }
+                },
+            });
+            const t = result.timings_ms;
+            elRealProof.status.textContent = result.verified
+                ? 'Proof verified in this tab. Demo TEE key; not hardware-attested.'
+                : 'Proof did not verify.';
+            elRealProof.timings.textContent =
+                `${result.frameCount} frames · capture ${t.capture} ms · hash ${t.hash_and_merkle} ms · ` +
+                `sign ${t.sign_and_witness} ms · prove ${t.prove} ms (worker) · verify ${t.verify} ms · total ${t.total} ms`;
+            elRealProof.output.textContent = JSON.stringify(
+                { verified: result.verified, publicSignals: result.publicSignals, timings_ms: t },
+                null,
+                2,
+            );
+            elRealProof.output.hidden = false;
+        } catch (error) {
+            elRealProof.status.textContent = `Failed: ${error.message}`;
+        } finally {
+            realProofBusy = false;
+            elRealProof.btn.disabled = false;
+        }
+    });
+}
 
 // ===================================================================
 // Shared Utilities
