@@ -8,6 +8,12 @@ Android app for RealPeep — anonymous provenance via camera sensor authenticati
 
 ---
 
+## Status
+
+See [STATUS.md](STATUS.md) for the current build/test result, implemented vs
+unimplemented features, known defects, and the proposed Rust core shape.
+The module is a capture scaffold, not a production provenance client.
+
 ## Quick Start
 
 ```bash

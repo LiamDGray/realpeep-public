@@ -1,5 +1,6 @@
 package com.realpeep.app
 
+import com.realpeep.app.audio.AudioRecorder
 import com.realpeep.app.crypto.HashChain
 import org.junit.Assert.*
 import org.junit.Test
@@ -55,6 +56,13 @@ class AudioCaptureTest {
         val videoHash = videoChain.append(videoFrame)
 
         assertFalse(audioHash.contentEquals(videoHash))
+    }
+
+    @Test
+    fun `AudioRecorder chunk constant is 100ms of 44kHz mono 16-bit`() {
+        // Regression: integer division (100 / 1000) previously produced 0 bytes,
+        // so AudioRecord.read(buffer, 0, 0) never advanced the audio hash chain.
+        assertEquals(8820, AudioRecorder.CHUNK_SIZE_BYTES)
     }
 
     @Test

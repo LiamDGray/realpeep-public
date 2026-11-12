@@ -23,7 +23,7 @@ class AudioRecorder {
         private const val CHUNK_DURATION_MS = 100L
 
         /** Bytes per chunk: sampleRate * bytesPerSample * channels * duration_seconds */
-        val CHUNK_SIZE_BYTES: Int = SAMPLE_RATE * 2 * 1 * (CHUNK_DURATION_MS / 1000).toInt()
+        val CHUNK_SIZE_BYTES: Int = SAMPLE_RATE * 2 * 1 * CHUNK_DURATION_MS.toInt() / 1000
     }
 
     private val hashChain = HashChain()
