@@ -42,15 +42,19 @@ Chrome headless, 20 frames at 320×180, public-domain clip.
 |---|---|
 | Capture frames | ~2,500 ms |
 | SHA-256 frame chain + Merkle root | 1–2 ms |
-| Demo EdDSA signature + witness | 120–180 ms |
-| **Groth16 prove in worker** | **~5,000–6,100 ms** (5.7 s first run, 5.0 s warm) |
-| Verify | 80–200 ms |
-| **Total** | **~8.4–9.0 s** |
+| Demo EdDSA signature + witness | 70–180 ms |
+| **Groth16 prove in a long-lived worker** | **~1.5–1.7 s** (first run 1.7 s, warm 1.5 s) |
+| Verify | 18–90 ms |
+| **Total** | **~4.1–4.4 s** |
 
-In the main demo’s embedded real-proof panel, the same pipeline measured
-**9.8 s total** (prove 7.2 s) with the page’s animations running. The worker
-keeps the UI alive, but it is roughly **2.5–3× slower** than the main-thread
-proof on this machine. That is a real tradeoff, not a rounding error.
+The main demo’s embedded panel measured **4.6 s total** (prove 2.1 s) with the
+page’s animations running.
+
+> **Important correction:** an earlier version created a new worker per proof.
+> That reloaded snarkjs and re-parsed the wasm/zkey every time, producing the
+> misleading 5–6 s / 8–9 s numbers. Reusing one worker removes that overhead;
+> the worker is now roughly the same speed as the main thread while keeping the
+> page responsive. The old 2.5–3× slowdown was an artifact.
 
 Separate proof-only benchmark with Chrome CPU throttling (main thread, same circuit/zkey):
 
@@ -66,12 +70,11 @@ close to native.
 
 ## Is a typical client fast enough?
 
-- **Desktop/laptop:** yes. Main-thread proof is ~1.8 s; the worker version is
-  ~5–7 s but keeps the page responsive.
-- **Modern phone (Pixel 8a class):** likely a few seconds for a main-thread
-  proof and somewhat longer in a worker. The circuit is only 19,006 constraints
-  and the heap is ~97 MB. A main-thread estimate is ~5–10 s total; worker
-  overhead is the open question. This is an estimate, not a device measurement.
+- **Desktop/laptop:** yes. Main-thread proof is ~1.8 s; the long-lived worker is
+  ~1.5–1.7 s warm and keeps the page responsive.
+- **Modern phone (Pixel 8a class):** likely a few seconds. The circuit is only
+  19,006 constraints and the heap is ~97 MB. A ~5–10 s total estimate is
+  plausible; this is not a device measurement.
 - **Low-end phone (Moto G7 Power / 3 GB):** likely 8–20 s main-thread and may be
   memory constrained. This is exactly the device to benchmark before claiming
   support.
@@ -115,9 +118,9 @@ access for the pinned `snarkjs` CDN script; everything else is local.
 - Frame roots use SHA-256 and are reduced mod the BN254 scalar field; this is a
   demo commitment, not a formal hash-to-field construction.
 - Mesh co-location and OpenTimestamps are not included.
-- The worker keeps the UI responsive but is ~2.5–3× slower than a main-thread
-  proof here. A production client should benchmark both on the target device and
-  consider a native prover (rapidsnark) for the mobile path.
+- The long-lived worker keeps the UI responsive at roughly main-thread speed.
+  A production client should still benchmark on the target device and consider a
+  native prover (rapidsnark) for the mobile path.
 - No mobile device benchmark yet; Pixel 8a and Moto XT1955-5 are the targets.
 
 ## Licensing

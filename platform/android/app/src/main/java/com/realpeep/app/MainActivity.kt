@@ -102,10 +102,11 @@ class MainActivity : ComponentActivity() {
     private fun startRecording(pin: String) {
         lifecycleScope.launch {
             // ── Duress Key Derivation from PIN ──
-            // The PIN is used as the passphrase for key derivation.
-            // Both normal and duress PINs produce valid keys.
-            val salt = ByteArray(16)
-            java.security.SecureRandom().nextBytes(salt)
+            // The PIN is used as the passphrase for key derivation. The salt is
+            // installation-wide and encrypted at rest, so the same PIN derives the
+            // same key after a process restart. Production needs a strong
+            // passphrase and a hardware-backed key; the 4-digit PIN is demo UX.
+            val salt = offlineBundle.getOrCreateInstallSalt()
             val keyPair = DuressKeys.deriveKeypair(pin, salt)
 
             // Derive mesh ID from a random session seed

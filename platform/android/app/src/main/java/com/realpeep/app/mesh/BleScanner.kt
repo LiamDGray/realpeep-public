@@ -3,7 +3,6 @@ package com.realpeep.app.mesh
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
@@ -73,17 +72,26 @@ class BleScanner(private val context: Context) {
         bloomFilter.clear()
         observedNonces.clear()
 
-        val scanFilter = ScanFilter.Builder()
-            .setServiceUuid(SERVICE_UUID)
-            .build()
-
-        val scanSettings = ScanSettings.Builder()
+        // Do not use a hardware ScanFilter here: setServiceUuid() matches the
+        // UUID-list AD, not the service-data AD, and some controllers do not
+        // apply service-data filters to extended advertisements. Filter in
+        // onScanResult instead.
+        val settingsBuilder = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
             .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
-            .build()
+            .setReportDelay(0)
 
-        scanner?.startScan(listOf(scanFilter), scanSettings, scanCallback)
+        val extendedSupported = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O &&
+            bluetoothAdapter.isLeExtendedAdvertisingSupported
+        if (extendedSupported) {
+            // Required: the default is legacy-only, which silently drops
+            // extended advertising results.
+            settingsBuilder.setLegacy(false)
+            settingsBuilder.setPhy(ScanSettings.PHY_LE_ALL_SUPPORTED)
+        }
+
+        scanner?.startScan(emptyList(), settingsBuilder.build(), scanCallback)
 
         // Periodically commit observations
         scanningJob = scope.launch(Dispatchers.Default) {
@@ -127,14 +135,23 @@ class BleScanner(private val context: Context) {
             val scanRecord = result.scanRecord ?: return
             val serviceData = scanRecord.serviceData[SERVICE_UUID] ?: return
 
-            val beacon = Beacon.deserialize(serviceData) ?: return
+            // Prefer the full signed beacon; fall back to the 21-byte short
+            // presence beacon used when extended advertising is unavailable.
+            val full = Beacon.deserialize(serviceData)
+            val short = if (full == null) ShortBeacon.deserialize(serviceData) else null
+            val nonce = full?.nonce ?: short?.nonce ?: return
 
             // Deduplicate by hex nonce
-            val nonceHex = beacon.nonce.joinToString("") { "%02x".format(it) }
+            val nonceHex = nonce.joinToString("") { "%02x".format(it) }
             if (observedNonces.add(nonceHex)) {
-                bloomFilter.add(beacon.nonce)
+                bloomFilter.add(nonce)
                 _deviceCount.value = observedNonces.size
-                Log.d(TAG, "Observed beacon from ${beacon.publicKey.take(4).joinToString("") { "%02x".format(it) }}...")
+                val source = if (full != null) {
+                    "full ${full.publicKey.take(4).joinToString("") { "%02x".format(it) }}..."
+                } else {
+                    "short (unsigned presence)"
+                }
+                Log.d(TAG, "Observed beacon from $source")
             }
         }
 

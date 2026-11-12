@@ -4,7 +4,7 @@
 # Default: build debug APK
 default: build
 
-export ANDROID_HOME := if env_var_or_default("ANDROID_HOME", "") == "" { "/home/liam/android-sdk" } else { "" }
+export ANDROID_HOME := env_var_or_default("ANDROID_HOME", env_var_or_default("ANDROID_SDK_ROOT", ""))
 
 # ── Build ────────────────────────────────────────────────────
 

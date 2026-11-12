@@ -5,8 +5,8 @@
 importScripts('https://cdn.jsdelivr.net/npm/snarkjs@0.7.6/build/snarkjs.min.js');
 
 self.onmessage = async (event) => {
-    const { input, vk, wasm, zkey } = event.data || {};
-    const post = (type, payload = {}) => self.postMessage({ type, ...payload });
+    const { id, input, vk, wasm, zkey } = event.data || {};
+    const post = (type, payload = {}) => self.postMessage({ id, type, ...payload });
 
     try {
         if (typeof snarkjs === 'undefined') {

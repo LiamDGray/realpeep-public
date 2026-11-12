@@ -1,0 +1,14 @@
+[package]
+name = "realpeep-core"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Deterministic RealPeep hash-chain, Merkle, transcript, and placeholder duress primitives"
+license = "Apache-2.0"
+
+[dependencies]
+hmac = "0.12"
+sha2 = "0.10"
+
+[dev-dependencies]
+hex = "0.4"

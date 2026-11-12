@@ -34,6 +34,10 @@ test-js-smart:
 test-circom:
     cd circuit && NODE_OPTIONS=--experimental-vm-modules npx mocha tests/**/*.js --timeout 120000
 
+# Rust core primitives (hash chain, Merkle, transcript, placeholder duress)
+test-rust:
+    cd rust/realpeep-core && cargo test
+
 # End-to-End browser tests
 test-e2e:
     cd tests && npm run test-e2e

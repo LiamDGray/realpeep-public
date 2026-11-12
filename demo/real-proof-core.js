@@ -141,58 +141,92 @@ export function buildWitness(payloadHash) {
     };
 }
 
-export function proveInWorker({ input, vk, workerUrl, onProgress, onLog }) {
-    const worker = new Worker(
+// One long-lived worker per page. Creating a new worker per proof reloads
+// snarkjs and re-parses the artifacts, which made the first worker benchmark
+// look much slower than the warm main-thread baseline.
+let proverWorker = null;
+let proverSeq = 0;
+const proverPending = new Map();
+
+function getProverWorker(workerUrl) {
+    if (proverWorker) return proverWorker;
+    proverWorker = new Worker(
         workerUrl || new URL('./real-proof-worker.js', import.meta.url),
     );
+    proverWorker.onmessage = (event) => {
+        const message = event.data || {};
+        const request = proverPending.get(message.id);
+        if (!request) return;
+        if (message.type === 'log') {
+            request.onLog?.(message.message);
+            return;
+        }
+        if (message.type === 'progress') {
+            request.onProgress?.(message);
+            return;
+        }
+        if (message.type === 'proof') {
+            request.proof = message.proof;
+            request.publicSignals = message.publicSignals;
+            request.proofAt = performance.now();
+            return;
+        }
+        if (message.type === 'done') {
+            proverPending.delete(message.id);
+            const verifiedAt = performance.now();
+            request.resolve({
+                proof: request.proof,
+                publicSignals: request.publicSignals,
+                ok: message.ok,
+                timings: {
+                    prove: request.proofAt ? Math.round(request.proofAt - request.started) : 0,
+                    verify: request.proofAt ? Math.round(verifiedAt - request.proofAt) : 0,
+                },
+            });
+            return;
+        }
+        if (message.type === 'error') {
+            proverPending.delete(message.id);
+            request.reject(new Error(message.error || 'prover worker failed'));
+        }
+    };
+    proverWorker.onerror = (event) => {
+        const error = new Error(event.message || 'prover worker error');
+        for (const request of proverPending.values()) request.reject(error);
+        proverPending.clear();
+        proverWorker?.terminate();
+        proverWorker = null;
+    };
+    return proverWorker;
+}
+
+export function proveInWorker({ input, vk, workerUrl, onProgress, onLog }) {
+    const worker = getProverWorker(workerUrl);
+    const id = ++proverSeq;
     return new Promise((resolve, reject) => {
-        const started = performance.now();
-        let proof = null;
-        let publicSignals = null;
-        let proofAt = null;
-        worker.onmessage = (event) => {
-            const message = event.data || {};
-            if (message.type === 'log') {
-                onLog?.(message.message);
-                return;
-            }
-            if (message.type === 'progress') {
-                onProgress?.(message);
-                return;
-            }
-            if (message.type === 'proof') {
-                proof = message.proof;
-                publicSignals = message.publicSignals;
-                proofAt = performance.now();
-                return;
-            }
-            if (message.type === 'done') {
-                worker.terminate();
-                const verifiedAt = performance.now();
-                resolve({
-                    proof,
-                    publicSignals,
-                    ok: message.ok,
-                    timings: {
-                        prove: proofAt ? Math.round(proofAt - started) : 0,
-                        verify: proofAt ? Math.round(verifiedAt - proofAt) : 0,
-                    },
-                });
-                return;
-            }
-            if (message.type === 'error') {
-                worker.terminate();
-                reject(new Error(message.error || 'prover worker failed'));
-            }
-        };
-        worker.onerror = (event) => {
-            worker.terminate();
-            reject(new Error(event.message || 'prover worker error'));
-        };
+        proverPending.set(id, {
+            started: performance.now(),
+            proof: null,
+            publicSignals: null,
+            proofAt: null,
+            resolve,
+            reject,
+            onProgress,
+            onLog,
+        });
         const wasm = new URL('circuit-artifacts/scrubber.wasm', document.baseURI).href;
         const zkey = new URL('circuit-artifacts/scrubber.zkey', document.baseURI).href;
-        worker.postMessage({ input, vk, wasm, zkey });
+        worker.postMessage({ id, input, vk, wasm, zkey });
     });
+}
+
+export function disposeProverWorker() {
+    proverWorker?.terminate();
+    proverWorker = null;
+    for (const request of proverPending.values()) {
+        request.reject(new Error('prover disposed'));
+    }
+    proverPending.clear();
 }
 
 export async function runRealProof({ video, canvas, source = 'clip', onProgress, onLog, workerUrl } = {}) {

@@ -87,7 +87,11 @@ realpeep/
 │
 ├── platform/                       # 📱 Platform-specific clients
 │   └── android/                    # — Android app (CameraX, Kotlin)
+│       ├── STATUS.md               # — Build/test status, defects, Moto plan
 │       └── docs -> ../../docs/     # Symlink to shared architecture docs
+│
+├── rust/                           # 🦀 Shared deterministic primitives
+│   └── realpeep-core/              # — hash chain, Merkle, transcript, duress placeholder
 │
 ├── workers/                        # Cloudflare Workers
 ├── functions/                      # Cloudflare Functions
@@ -202,6 +206,7 @@ just demo
 | [docs/business/RISK_REGISTER_AND_MITIGATIONS.md](docs/business/RISK_REGISTER_AND_MITIGATIONS.md) | Commercial, adoption, and safety risks — and what to do about them |
 | [docs/research/DURESS_NOVELTY_ASSESSMENT.md](docs/research/DURESS_NOVELTY_ASSESSMENT.md) | Is the duress protocol novel / publishable? Prior art and gaps |
 | [docs/roadmap/VERTICAL_SLICES.md](docs/roadmap/VERTICAL_SLICES.md) | Build order: duress first, then on-device ZK |
+| [docs/roadmap/NATIVE_HARDENING_PLAN.md](docs/roadmap/NATIVE_HARDENING_PLAN.md) | Native Android hardening + Rust core plan |
 | [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) | Full implementation plan & milestones |
 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 90-second walkthrough (clicks + narration) |
 | [docs/DEMO_RECORDING.md](docs/DEMO_RECORDING.md) | FOSS, CPU-only recording pipeline (Kokoro + Playwright + ffmpeg) |

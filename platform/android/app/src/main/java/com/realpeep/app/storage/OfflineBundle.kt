@@ -2,10 +2,12 @@ package com.realpeep.app.storage
 
 import android.content.Context
 import androidx.security.crypto.EncryptedFile
+import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.security.SecureRandom
 
 /**
  * Encrypted offline storage for observation bundles and session data.
@@ -18,6 +20,8 @@ class OfflineBundle(private val context: Context) {
     companion object {
         private const val BUNDLES_DIR = "realpeep_bundles"
         private const val SESSION_FILE = "session.json"
+        private const val SECURE_PREFS = "realpeep_secure_prefs"
+        private const val INSTALL_SALT = "install_salt"
     }
 
     private val masterKey = MasterKey.Builder(context)
@@ -25,6 +29,38 @@ class OfflineBundle(private val context: Context) {
         .build()
 
     private val bundlesDir = File(context.filesDir, BUNDLES_DIR).also { it.mkdirs() }
+
+    private val securePrefs by lazy {
+        EncryptedSharedPreferences.create(
+            context,
+            SECURE_PREFS,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        )
+    }
+
+    /**
+     * An installation-wide salt for PIN/passphrase key derivation.
+     *
+     * The salt is generated once and stored in AndroidKeystore-backed encrypted
+     * preferences, so the same PIN derives the same key after a process restart.
+     * A production deployment should use a strong passphrase and a hardware-backed
+     * key; the 4-digit PIN remains demo material.
+     */
+    fun getOrCreateInstallSalt(): ByteArray {
+        val existing = securePrefs.getString(INSTALL_SALT, null)
+        if (existing != null) {
+            return existing.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        }
+        val salt = ByteArray(16)
+        SecureRandom().nextBytes(salt)
+        securePrefs.edit().putString(INSTALL_SALT, salt.toHex()).apply()
+        return salt
+    }
+
+    private fun ByteArray.toHex(): String =
+        joinToString("") { "%02x".format(it) }
 
     /**
      * Store a session's observation bundle (encrypted).
