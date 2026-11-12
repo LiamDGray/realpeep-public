@@ -14,14 +14,15 @@ Built, installed, and run from `platform/android`.
 
 | Check | Result |
 |---|---|
-| Camera frame chain | **83 frames** after ~6 s; count kept increasing |
-| Audio chain | **77 chunks** after ~6 s; count kept increasing |
+| Camera frame chain | **83 frames** after ~6 s; **377 frames** in the final ~26 s session |
+| Audio chain | **77 chunks** after ~6 s; **257 chunks** in the final ~26 s session |
 | Second recording session | works after fixing the `session.json` overwrite crash |
 | BLE advertising | **`Short legacy advertising started`** — the 21-byte fallback, as expected on BT 4.2 |
 | BLE scanning | `onScannerRegistered() status=0`; no scan failure |
 | Mesh devices | 0 (no second device in range; peer test not performed) |
+| Stop/cleanup | Final session stopped cleanly: `Frames: 377, Audio chunks: 257, Mesh devices: 0` |
 | PIN UX | four digits fill the dots, Start enables, session starts |
-| Camera preview | **confirmed working** after switching `PreviewView` to `COMPATIBLE` (TextureView); a live frame showed the laptop keyboard. A later launch was black because the phone was lying on its back camera. |
+| Camera preview | **confirmed working** after switching `PreviewView` to `COMPATIBLE` (TextureView); a live frame showed the curtain/bookshelf scene, and the final recording had 377 frames / 257 audio chunks. |
 
 ### Bugs found and fixed during this run
 
