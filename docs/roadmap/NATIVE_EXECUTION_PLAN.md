@@ -78,13 +78,17 @@ into the app. This is the native-credibility artifact.
 **Acceptance:** app loads the native library on Pixel and Moto, frame/audio
 counts and hashes match the Kotlin reference, and the 16 KB check passes.
 
-## Phase 5 — rapidsnark decision
+## Phase 5 — rapidsnark decision — **Deferred by evidence**
 
 Only after Phases 1–4:
 - Compare Pixel/Moto JS proof with a rapidsnark JNI spike.
 - Decide by measured latency/memory/complexity and licensing, not by novelty.
 - If not justified, document the decision and keep the native core as the
   native deliverable.
+
+**Decision (12 Nov 2026):** defer. Pixel 8a warm proof is **4.7 s total**; the
+native Rust/JNI core is the native deliverable. Revisit if a target exceeds
+~10 s warm or offline/no-JS proving becomes a requirement.
 
 ## Out of scope / non-claims
 

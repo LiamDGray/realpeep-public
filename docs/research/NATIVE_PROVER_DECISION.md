@@ -1,8 +1,19 @@
 # Native prover decision memo
 
 **Date:** 11 November 2026  
-**Status:** research complete; no native prover integrated yet  
+**Status:** research complete; **defer rapidsnark** (decision 12 Nov 2026)  
 **Scope:** Android native proving, browser WASM, and the shared Rust core
+
+## Decision (12 November 2026)
+
+**Do not integrate a native Groth16 prover in this cycle.** The Pixel 8a runs the
+warm browser proof in **4.7 s total / 2.1 s prove** (Moto: ~11 s / ~7.7 s), and
+the native-code credibility artifact is now the Rust/JNI core. Adding rapidsnark
+would mean LGPL compliance, JNI plus zkey/witness plumbing, and a new native ABI
+for a demo that already completes in under five seconds on the fast target.
+Revisit if a target exceeds ~10 s warm, if proving must be offline/no-JS, or if a
+production Android client requires it. The Rust core can stay behind the same
+`Prover` boundary.
 
 ## Bottom line
 

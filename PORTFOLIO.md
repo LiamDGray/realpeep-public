@@ -29,7 +29,7 @@ Android pipeline are not built yet. See [what is real vs simulated](#what-is-rea
 |---|---|
 | Test suite | **119 Python**, **170 Jest**, **3 Circom** tests; full CI green |
 | ZK circuit | **19,006 constraints** (depth-20 EdDSA-Poseidon + Merkle inclusion) |
-| Languages / stacks | Python, JavaScript/Node, Circom, Kotlin/Android, Cloudflare Workers + D1 |
+| Languages / stacks | Python, JavaScript/Node, Circom, Kotlin/Android, Rust/JNI, Cloudflare Workers + D1 |
 | CI | GitHub Actions, circuit-artifact staleness gate, local replica + pre-push hook |
 | Security work | Threat model, duress prior-art assessment, self-review of the duress construction |
 | Product work | Risk register, vertical-slice plan, comparison with C2PA and Birthmark |
@@ -132,7 +132,9 @@ just ci
 | Web demo | **Live**; simulated capture and mesh |
 | Browser-camera preview | **Optional UI preview only**; labelled not attested; falls back to simulation |
 | Real client-side proof | **Prototype**; real frame hashing + EdDSA + Groth16 in a browser worker; demo TEE key, dev zkey |
-| Android app | **Scaffold**; not in CI, no on-device proving benchmark yet |
+| Android app | **Prototype**; CameraX/audio/BLE, unit + instrumented tests, Android CI; no on-device ZK/TEE |
+| Native core | **Prototype**; Rust `cdylib` over JNI for frame hashing/Merkle, 16 KB aligned, device parity tests |
+| Duress v0.1 | **Reference**; exact transcript-bound tags, 2-of-3 notary, replay state; demo-only limits documented |
 | On-device ZK proving | **Not built** |
 | Real-time phone audio capture | **Not built** |
 | Blockchain / OpenTimestamps bridge | **Not built** (library work only) |
