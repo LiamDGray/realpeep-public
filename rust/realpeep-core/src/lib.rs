@@ -1,4 +1,4 @@
-#![forbid(unsafe_code)]
+#![deny(unsafe_code)]
 //! Deterministic, dependency-light primitives for RealPeep capture provenance.
 //!
 //! This crate is intentionally not a prover and does not replace the Circom
@@ -10,6 +10,8 @@
 
 pub mod duress;
 pub mod hash_chain;
+#[cfg(target_os = "android")]
+pub mod jni;
 pub mod merkle;
 pub mod transcript;
 

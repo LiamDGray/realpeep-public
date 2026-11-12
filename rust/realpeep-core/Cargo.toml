@@ -6,8 +6,15 @@ publish = false
 description = "Deterministic RealPeep hash-chain, Merkle, transcript, and placeholder duress primitives"
 license = "Apache-2.0"
 
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+android = ["dep:jni"]
+
 [dependencies]
 hmac = "0.12"
+jni = { version = "0.21", optional = true }
 sha2 = "0.10"
 
 [dev-dependencies]

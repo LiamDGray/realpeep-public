@@ -2,12 +2,13 @@
 
 **Last verified:** 12 November 2026 on the Moto G7 Power (Android 10) and Pixel 8a (Android 17)  
 **Build:** `./gradlew :app:assembleDebug` — success (debug APK ~64 MB)  
-**Unit tests:** `./gradlew :app:testDebugUnitTest` — **49 tests, 0 failures**  
-**Instrumented tests:** 3 on the Moto (PIN state, session overwrite, bundle preservation) — see [docs/DEVICE_BASELINE.md](../../docs/DEVICE_BASELINE.md)  
+**Unit tests:** `./gradlew :app:testDebugUnitTest` — **52 tests, 0 failures**  
+**Instrumented tests:** 5 on the Moto (PIN, storage, native core); 4 on the Pixel (PIN Compose test skipped on API 37) — see [docs/DEVICE_BASELINE.md](../../docs/DEVICE_BASELINE.md)  
 **CI:** `.github/workflows/android.yml` builds the debug APK and runs the unit tests on changes under `platform/android/`
 
 Toolchain: `minSdk 29`, `compileSdk 34`, `targetSdk 34`, AGP 8.5.2, Kotlin 2.0.10,
-Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
+Gradle 8.7, JDK 21, CameraX 1.4.2, Compose BOM 2024.06.00, NDK r28c,
+Rust `realpeep-core` (arm64 JNI).
 
 > This is a **working capture scaffold**, not a production provenance client. It
 > captures camera/audio/BLE data and hashes it, but it does **not** generate a ZK
@@ -21,9 +22,13 @@ Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
 - `AudioRecord` 44.1 kHz mono PCM capture in 100 ms chunks into a separate
   `HashChain`.
 - BLE advertising and scanning with Ed25519-signed beacons (extended
-  advertising) plus a 21-byte legacy fallback, a Bloom filter, and observation
-  bundles. Extended-capable phones now also emit the short legacy beacon, so a
-  BT 4.2 phone can see them. Extended capability is checked from the controller.
+  advertising) plus a **23-byte legacy fallback** carrying a stable 4-byte
+  device tag. Extended-capable phones also emit the short legacy beacon, so a
+  BT 4.2 phone can see them. The scanner counts distinct device tags, not
+  rotating nonces. Extended capability is checked from the controller.
+- Rust `realpeep-core` built as an arm64 `cdylib` and loaded over JNI for
+  SHA-256 frame hashing and Merkle roots, with a Kotlin fallback and
+  instrumented parity tests.
 - Android Keystore-backed AES-256-GCM encrypted offline storage.
 - BouncyCastle Ed25519 software keys (`EphemeralKey`) and PIN-derived keys
   (`DuressKeys`, 8-bit marker, PBKDF2 100k).
@@ -42,8 +47,8 @@ Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
   is not bound to a proof.
 - Mesh verification, observation upload, MNR rollup, or OpenTimestamps anchoring.
 - A real video recording file; frames are JPEG-compressed for hashing only.
-- Rust/JNI core, native prover, or a device CI lane (the three instrumented tests
-  are run manually on the Moto).
+- Native Groth16 prover, or an instrumented device CI lane (the five
+  instrumented tests are run manually on the Moto and four on the Pixel).
 
 ## Known defects found in this audit
 
@@ -76,10 +81,9 @@ Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
    `ServiceCompat.startForeground(..., CONNECTED_DEVICE)`. On Android 13+ the
    notification may still be hidden if the user denies it; recording is not
    blocked.
-7. **Target SDK is 34, not Android 17/API 37.** The Pixel 8a runs it, but shows
-   a 16 KB page-size warning for CameraX's
-   `libimage_processing_util_jni.so`. Upgrade CameraX/AGP before claiming
-   Android 17 support.
+7. **Pixel 16 KB compatibility is fixed.** CameraX 1.4.2 provides 16 KB-aligned
+   native libraries; the Android CI step runs `scripts/check-16kb.sh` on the
+   debug APK. Target SDK is still 34 rather than Android 17/API 37.
 
 ## What to test on the Moto XT1955-5 (Android 10, 3 GB)
 

@@ -7,9 +7,10 @@ byte-level rules that Python, JavaScript, Kotlin, Rust, and eventually WASM must
 agree on: the SHA-256 frame chain, a binary Merkle root, a canonical capture
 transcript, and a placeholder duress tag.
 
-**Status: prototype primitives, not a security boundary.** The Circom circuit
-and its snarkjs prover remain the source of truth for RealPeep proofs. This
-crate is not yet wired into Android or WASM.
+**Status: primitive library, not a security boundary.** The Circom circuit
+and its snarkjs prover remain the source of truth for RealPeep proofs. The
+Android app loads the arm64 `cdylib` over JNI for frame hashing and Merkle
+roots; WASM is not wired yet.
 
 ## Scope
 
@@ -21,8 +22,9 @@ crate is not yet wired into Android or WASM.
 | `transcript` | Canonical, domain-separated, length-prefixed v1 transcript encoding and `SHA-256` transcript hash. |
 | `duress` | **Placeholder only:** 32-byte `HMAC-SHA256(key, transcript_hash)` tag plus a test-only leading-32-zero-bits predicate. |
 
-The crate has `#![forbid(unsafe_code)]`, edition 2021, and only `sha2` and
-`hmac` as runtime dependencies (`hex` is dev-only). It serializes bytes itself;
+The crate uses `#![deny(unsafe_code)]`; only the JNI export shim allows the
+unsafe symbol attribute. Edition 2021; `sha2` and `hmac` are runtime
+dependencies, `jni` is optional behind the `android` feature, `hex` is dev-only. It serializes bytes itself;
 there is no JSON, serde, or hidden nondeterminism.
 
 ## Canonical transcript format

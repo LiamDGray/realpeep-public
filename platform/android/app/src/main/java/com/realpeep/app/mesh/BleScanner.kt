@@ -40,6 +40,7 @@ class BleScanner(private val context: Context) {
 
     private val bloomFilter = BloomFilter(capacity = 5000, fpr = 0.02)
     private val observedNonces = mutableSetOf<String>()  // Hex-encoded for dedup
+    private val observedDevices = DeviceObservationTracker()
 
     private val _deviceCount = MutableStateFlow(0)
     val deviceCount: StateFlow<Int> = _deviceCount
@@ -71,6 +72,7 @@ class BleScanner(private val context: Context) {
         _isScanning.value = true
         bloomFilter.clear()
         observedNonces.clear()
+        observedDevices.clear()
 
         // Do not use a hardware ScanFilter here: setServiceUuid() matches the
         // UUID-list AD, not the service-data AD, and some controllers do not
@@ -140,12 +142,19 @@ class BleScanner(private val context: Context) {
             val full = Beacon.deserialize(serviceData)
             val short = if (full == null) ShortBeacon.deserialize(serviceData) else null
             val nonce = full?.nonce ?: short?.nonce ?: return
+            // Count devices, not rotating nonces. Full beacons carry the
+            // public key; short beacons carry a stable 4-byte device tag.
+            val deviceId = if (full != null) {
+                "pk:" + full.publicKey.joinToString("") { "%02x".format(it) }
+            } else {
+                "tag:" + short!!.deviceTag.joinToString("") { "%02x".format(it) }
+            }
 
-            // Deduplicate by hex nonce
             val nonceHex = nonce.joinToString("") { "%02x".format(it) }
             if (observedNonces.add(nonceHex)) {
                 bloomFilter.add(nonce)
-                _deviceCount.value = observedNonces.size
+                observedDevices.observe(deviceId)
+                _deviceCount.value = observedDevices.count
                 val source = if (full != null) {
                     "full ${full.publicKey.take(4).joinToString("") { "%02x".format(it) }}..."
                 } else {

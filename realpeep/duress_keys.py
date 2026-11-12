@@ -1,4 +1,10 @@
 """
+LEGACY DEMO — superseded by realpeep/duress/v01.py.
+
+This module uses an 8-bit marker and a deterministic duress nonce. It is kept
+only for the old demo/tests; do not use it for security claims. The v0.1
+reference is the transcript-bound two-label construction in realpeep/duress.
+
 Phase 3a: Duress Key Derivation.
 
 Both normal and duress passphrases derive indistinguishable Ed25519 keypairs,

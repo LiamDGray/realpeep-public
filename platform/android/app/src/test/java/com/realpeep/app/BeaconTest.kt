@@ -3,6 +3,7 @@ package com.realpeep.app
 import com.realpeep.app.mesh.Beacon
 import com.realpeep.app.mesh.ShortBeacon
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -33,17 +34,29 @@ class BeaconTest {
 
     @Test
     fun `short beacon is small enough for a legacy advertisement and round-trips`() {
-        val beacon = ShortBeacon(nonce = nonce, meshId = meshId)
+        val tag = ShortBeacon.tagFor(ByteArray(32) { (it + 1).toByte() })
+        val shortNonce = nonce.copyOfRange(0, 14)
+        val beacon = ShortBeacon(nonce = shortNonce, meshId = meshId, deviceTag = tag)
         val encoded = ShortBeacon.serialize(beacon)
         assertEquals(ShortBeacon.TOTAL_BYTES, encoded.size)
-        assertEquals(21, encoded.size)
-        // 21 bytes of service data + 2-byte service UUID + 3-byte flags fits 31.
-        assertTrue(encoded.size + 2 + 3 <= 31)
+        assertEquals(23, encoded.size)
+        // 23 payload + 4 service-data AD + 4 UUID-list AD = 31 bytes.
+        assertEquals(31, encoded.size + 4 + 4)
 
         val decoded = ShortBeacon.deserialize(encoded)
         assertNotNull(decoded)
-        assertTrue(decoded!!.nonce.contentEquals(nonce))
+        assertTrue(decoded!!.nonce.contentEquals(shortNonce))
         assertTrue(decoded.meshId.contentEquals(meshId))
+        assertTrue(decoded.deviceTag.contentEquals(tag))
+    }
+
+    @Test
+    fun `short beacon device tag is stable and key-dependent`() {
+        val keyA = ByteArray(32) { it.toByte() }
+        val keyB = ByteArray(32) { (it + 1).toByte() }
+        assertEquals(4, ShortBeacon.tagFor(keyA).size)
+        assertTrue(ShortBeacon.tagFor(keyA).contentEquals(ShortBeacon.tagFor(keyA)))
+        assertFalse(ShortBeacon.tagFor(keyA).contentEquals(ShortBeacon.tagFor(keyB)))
     }
 
     @Test

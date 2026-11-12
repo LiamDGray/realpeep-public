@@ -182,7 +182,13 @@ class BleAdvertiser(private val context: Context) {
     }
 
     private fun startShortLegacy(beacon: Beacon) {
-        val short = ShortBeacon(nonce = beacon.nonce, meshId = beacon.meshId)
+        val short = ShortBeacon(
+            // 14-byte nonce keeps the service data within the legacy budget:
+            // 23 payload + 4 service-data AD + 4 UUID AD = 31 bytes.
+            nonce = beacon.nonce.copyOfRange(0, 14),
+            meshId = beacon.meshId,
+            deviceTag = ShortBeacon.tagFor(beacon.publicKey),
+        )
         val data = AdvertiseData.Builder()
             .setIncludeDeviceName(false)
             .setIncludeTxPowerLevel(false)

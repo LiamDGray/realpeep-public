@@ -24,10 +24,14 @@ class HashChain {
      * Append a frame to the chain. Returns the frame hash.
      */
     fun append(frameData: ByteArray): ByteArray {
-        md.reset()
-        md.update(previousHash)
-        md.update(frameData)
-        val frameHash = md.digest()
+        val frameHash = if (NativeCore.available) {
+            NativeCore.frameHash(previousHash, frameData)
+        } else {
+            md.reset()
+            md.update(previousHash)
+            md.update(frameData)
+            md.digest()
+        }
         hashes.add(frameHash)
         previousHash = frameHash
         return frameHash
@@ -39,6 +43,9 @@ class HashChain {
      */
     fun buildMerkleRoot(): ByteArray {
         if (hashes.isEmpty()) return ByteArray(32)
+        if (NativeCore.available) {
+            return NativeCore.merkleRoot(hashes.toTypedArray())
+        }
 
         var level = hashes.toList()
         while (level.size > 1) {

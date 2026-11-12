@@ -55,7 +55,9 @@ BUILD SUCCESSFUL
 ```
 
 The PIN test needs the device to be unlocked; on the lock screen it reports
-`No compose hierarchies found` even though the storage tests pass.
+`No compose hierarchies found` even though the storage tests pass. On the Pixel
+(API 37) the Compose UI test is skipped because Compose 1.6's test harness calls
+the removed `InputManager.getInstance()`; the app/manual PIN flow works.
 
 ## JS proof in Chrome on the Moto
 
@@ -112,6 +114,17 @@ node benchmark_android.mjs --webcam --runs 1
 The benchmark script is [demo/recording/benchmark_android.mjs](../demo/recording/benchmark_android.mjs).
 
 
+## Native core
+
+`realpeep-core` is built as an arm64 `cdylib` with NDK r28c and loaded through
+`NativeCore`/JNI. Instrumented parity tests compare SHA-256, frame hashing, and
+Merkle roots against pure-Java references:
+
+- Moto: **5 tests passed**.
+- Pixel: **4 tests passed** (Compose PIN test skipped on API 37).
+- The packaged `librealpeep_core.so` has `0x4000` LOAD alignment and is included
+  in `scripts/check-16kb.sh`.
+
 ## Two-device mesh test (Moto + Pixel 8a)
 
 The Pixel 8a runs Android 17 / API 37, Chrome 157.0.8103.50, 1080×2400.
@@ -140,7 +153,9 @@ RealPeep.Scanner: Observed beacon from short (unsigned presence)
 | Pixel 8a | extended + short legacy | saw Moto | **1,188 frames, 404 audio chunks, Mesh: 1** |
 
 Both screens showed **`Mesh: 1 device`**, TX/RX active, and live camera
-previews. This validates the mixed-generation mesh path for the demo.
+previews. This validates the mixed-generation mesh path for the demo. After
+rotating/refreshing sessions, both still count one device because the tag is
+stable.
 
 ## Pixel 8a JS proof
 
@@ -154,16 +169,10 @@ Same page and long-lived worker, driven over Chrome DevTools Protocol.
 The Pixel is roughly **2.4× faster** than the Moto end-to-end and is comfortably
 usable for the demo.
 
-## Pixel 16 KB page-size warning
+## Pixel 16 KB page-size compatibility
 
-On first launch the Pixel showed:
-
-```text
-This app isn't 16 KB compatible. LOAD segment alignment check failed.
-lib/arm64-v8a/libimage_processing_util_jni.so : LOAD segment not aligned
-```
-
-The debug app runs after dismissing the warning, including camera preview and
-the mesh test. This is the CameraX 1.3.4 native image-processing library. Before
-calling Android 17 supported, upgrade CameraX/AGP (or remove the unused image
-processing dependency) and verify with `readelf -lW` and a 16 KB device.
+CameraX 1.3.4 shipped `libimage_processing_util_jni.so` with 4 KB LOAD
+alignment, producing the Android 17 compatibility warning. CameraX **1.4.2**
+ships the same libraries with `0x4000` alignment; the app was upgraded with no
+SDK/AGP change. The Pixel now launches with no 16 KB warning, and
+`scripts/check-16kb.sh` verifies every native LOAD segment in the built APK.
