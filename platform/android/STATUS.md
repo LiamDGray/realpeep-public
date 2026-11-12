@@ -79,8 +79,9 @@ Gradle 8.7, JDK 21, CameraX 1.3.4, Compose BOM 2024.06.00.
 
 ## What to test on the Moto XT1955-5 (Android 10, 3 GB)
 
-Use `scripts/android-device-test.sh` (and `--js` for the browser baseline) to
-install, grant permissions, launch, and set up `adb reverse`. Manual checklist:
+Run `scripts/android-probe.sh` first (read-only device/BLE/Chrome/thermal facts),
+then `scripts/android-device-test.sh --js` to install, grant permissions, launch,
+and set up `adb reverse`. Manual checklist:
 
 - `./gradlew :app:installDebug`, grant camera/mic/BLE/location, record 10 s.
 - Confirm `frameCount` and `audioChunkCount` both grow (audio now fixed).
