@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RealPeep — real client-side proof</title>
+<style>
+  :root { color-scheme: dark; --bg:#080b12; --panel:#0f1522; --line:#22304a; --text:#eaf2ff; --muted:#8fa3c0; --accent:#00d2ff; --green:#00e676; --warn:#ffb300; --fail:#ff1744; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Inter, "DejaVu Sans", system-ui, sans-serif; background:
+      radial-gradient(900px 500px at 12% 0%, rgba(0,210,255,.14), transparent 60%),
+      radial-gradient(800px 500px at 95% 100%, rgba(0,230,118,.08), transparent 60%), var(--bg);
+    color:var(--text); min-height:100vh; }
+  .wrap { width:min(1180px, 92vw); margin:0 auto; padding:38px 0 60px; }
+  .kicker { color:var(--accent); letter-spacing:.22em; text-transform:uppercase; font-size:12px; font-weight:700; }
+  h1 { font-size:42px; line-height:1.05; margin:10px 0 10px; letter-spacing:-.03em; }
+  .sub { color:var(--muted); font-size:17px; line-height:1.55; max-width:900px; margin:0 0 26px; }
+  .warnbox { border:1px solid rgba(255,179,0,.35); background:rgba(255,179,0,.07); border-radius:12px; padding:12px 16px; color:#ffd27a; font-size:13px; line-height:1.5; margin:0 0 24px; }
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:22px; align-items:start; }
+  .card { background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)); border:1px solid var(--line); border-radius:16px; padding:18px; }
+  video, canvas { width:100%; border-radius:10px; background:#000; display:block; }
+  video { aspect-ratio: 16/9; object-fit:cover; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  button { appearance:none; border:1px solid rgba(0,210,255,.45); background:rgba(0,210,255,.10); color:var(--text); border-radius:9px; padding:10px 14px; font-size:13px; font-weight:650; cursor:pointer; }
+  button:hover:not(:disabled) { background:rgba(0,210,255,.2); }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  button.secondary { border-color:var(--line); background:rgba(255,255,255,.03); }
+  .status { margin-top:14px; font-family:"DejaVu Sans Mono", ui-monospace, monospace; font-size:12px; color:var(--muted); min-height:20px; }
+  .steps { list-style:none; padding:0; margin:14px 0 0; }
+  .steps li { display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(255,255,255,.06); padding:8px 0; font-size:13px; color:var(--muted); }
+  .steps li strong { color:var(--text); font-weight:600; }
+  .steps li .val { font-family:"DejaVu Sans Mono", ui-monospace, monospace; font-size:12px; }
+  .ok { color:var(--green); } .bad { color:var(--fail); } .warn { color:var(--warn); }
+  pre { white-space:pre-wrap; word-break:break-word; background:#05080f; border:1px solid var(--line); border-radius:10px; padding:12px; font-size:11px; line-height:1.5; max-height:260px; overflow:auto; }
+  .links { margin-top:18px; font-size:13px; color:var(--muted); }
+  .links a { color:var(--accent); }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } h1 { font-size:32px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">RealPeep · real client-side proof</div>
+  <h1>Frames → hash chain → ZK proof, in this tab.</h1>
+  <p class="sub">
+    This page hashes frames from a public-domain NASA clip (or your webcam), builds a
+    Merkle root, signs that root with a <strong>demo</strong> EdDSA-Poseidon key, and
+    generates and verifies a Groth16 proof in the browser. It is the real proof path,
+    not the animated simulation in the main demo.
+  </p>
+  <p class="warnbox">
+    <strong>Not hardware-attested.</strong> The TEE key is a demo key in JavaScript, the
+    trusted setup is the repository’s development artifact, and the mesh / OpenTimestamps
+    layers are not included. This demonstrates the client-side cycle cost and the
+    frame-to-proof binding, not a production root of trust.
+  </p>
+
+  <div class="grid">
+    <section class="card">
+      <video id="source" src="assets/public-domain/nasa-earth-iss-5s.mp4" muted loop playsinline poster=""></video>
+      <div class="row">
+        <button id="run-clip">Prove the public-domain clip</button>
+        <button id="run-webcam" class="secondary">Use webcam</button>
+        <button id="download" class="secondary" disabled>Download proof bundle</button>
+      </div>
+      <div class="status" id="status">Ready. The clip is NASA public-domain footage; the webcam stays in this tab.</div>
+      <ol class="steps" id="steps">
+        <li><strong>Capture frames</strong><span class="val" id="t-capture">—</span></li>
+        <li><strong>SHA-256 frame chain / Merkle root</strong><span class="val" id="t-hash">—</span></li>
+        <li><strong>Demo TEE signature + witness</strong><span class="val" id="t-sign">—</span></li>
+        <li><strong>Groth16 prove (browser WASM)</strong><span class="val" id="t-prove">—</span></li>
+        <li><strong>Verify</strong><span class="val" id="t-verify">—</span></li>
+        <li><strong>Total</strong><span class="val" id="t-total">—</span></li>
+      </ol>
+      <div class="links">
+        <a href="index.html">← back to the simulated demo</a> ·
+        <a href="../docs/DEMO_RECORDING.md">recording notes</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <canvas id="frame-preview" width="320" height="180"></canvas>
+      <div class="status" id="root-line">Frame root: —</div>
+      <pre id="output">Proof output will appear here.</pre>
+    </section>
+  </div>
+</div>
+
+<script src="vendor/zk-kit.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/snarkjs@0.7.6/build/snarkjs.min.js"></script>
+<script type="module" src="real-proof.js"></script>
+</body>
+</html>

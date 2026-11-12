@@ -9,6 +9,9 @@ repos:
     hooks:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
+        # The generated, minified zk-kit bundle is high-entropy by nature and
+        # takes minutes to scan; it contains no credentials.
+        exclude: ^demo/vendor/.*\.bundle\.js$
         stages: [pre-commit, pre-push]
   - repo: local
     hooks:

@@ -205,6 +205,7 @@ just demo
 | [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) | Full implementation plan & milestones |
 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | 90-second walkthrough (clicks + narration) |
 | [docs/DEMO_RECORDING.md](docs/DEMO_RECORDING.md) | FOSS, CPU-only recording pipeline (Kokoro + Playwright + ffmpeg) |
+| [docs/REAL_CLIENT_PROOF.md](docs/REAL_CLIENT_PROOF.md) | Real browser frame-hash + Groth16 proof, with measured CPU cost |
 | [docs/reviews/TECHNICAL_REVIEW_2026.md](docs/reviews/TECHNICAL_REVIEW_2026.md) | Codebase audit, gaps, recommendations |
 | [platform/android/](platform/android/) | Android app — CameraX capture, frame hash chain, audio recording |
 

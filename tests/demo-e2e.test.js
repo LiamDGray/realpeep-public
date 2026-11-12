@@ -78,7 +78,8 @@ async function runTest() {
             }
         });
 
-        await page.goto(`${baseUrl}/demo/`, { waitUntil: 'networkidle0' });
+        await page.goto(`${baseUrl}/demo/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        await page.waitForSelector('#pin-instruction', { timeout: 15000 });
 
         // ── Step 1: Page loads without errors, PIN pad is visible ──
         const pinInstruction = await page.$('#pin-instruction');

@@ -67,10 +67,21 @@ const server = spawn('python3', ['-m', 'http.server', String(port), '--bind', '1
 });
 await waitForServer(`${baseUrl}/demo/`);
 
+const fakeCamera = process.env.FAKE_CAMERA_FILE;
+const browserArgs = ['--no-sandbox', '--disable-dev-shm-usage', '--hide-scrollbars'];
+if (fakeCamera) {
+    // Deterministic camera fixture for the recorded cut. The demo still labels
+    // it as a browser-camera preview, not hardware attestation.
+    browserArgs.push(
+        '--use-fake-ui-for-media-stream',
+        '--use-fake-device-for-media-stream',
+        `--use-file-for-fake-video-capture=${fakeCamera}`,
+    );
+}
 const browser = await chromium.launch({
     headless: true,
     executablePath: process.env.CHROME_BIN || chromium.executablePath(),
-    args: ['--no-sandbox', '--disable-dev-shm-usage', '--hide-scrollbars'],
+    args: browserArgs,
 });
 const context = await browser.newContext({
     viewport: { width: 1600, height: 900 },
@@ -189,7 +200,7 @@ async function scrollTo(selector) {
     await page.waitForTimeout(650);
 }
 
-await page.goto(`${baseUrl}/demo/?camera=off`, { waitUntil: 'load', timeout: 30000 });
+await page.goto(`${baseUrl}/demo/?camera=${fakeCamera ? 'auto' : 'off'}`, { waitUntil: 'load', timeout: 30000 });
 await page.waitForSelector('#pin-instruction', { timeout: 15000 });
 await page.emulateMedia({ reducedMotion: 'no-preference' });
 

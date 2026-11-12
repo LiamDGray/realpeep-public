@@ -28,6 +28,12 @@ printf '==> 1/3 narration (Kokoro-82M int8, CPU)\n'
     --model-dir "$KOKORO_MODEL_DIR" --out-dir "$OUT_DIR")
 
 printf '==> 2/3 screen recording (Playwright)\n'
+CLIP="${PUBLIC_DOMAIN_CLIP:-$ROOT/demo/assets/public-domain/nasa-earth-iss-5s.mp4}"
+FAKE_CAMERA="$OUT_DIR/fake-camera.y4m"
+if [[ "${USE_WEBCAM:-0}" != "1" && -f "$CLIP" ]]; then
+    "$ROOT/demo/recording/make_fake_camera.sh" "$CLIP" "$FAKE_CAMERA"
+    export FAKE_CAMERA_FILE="$FAKE_CAMERA"
+fi
 (cd "$ROOT" && node demo/recording/record_demo.mjs "$OUT_DIR")
 
 printf '==> 3/3 mux + captions (ffmpeg)\n'

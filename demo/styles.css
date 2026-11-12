@@ -20,7 +20,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'DejaVu Sans', system-ui, sans-serif;
     background-color: var(--bg-dark);
     color: var(--text-main);
     min-height: 100vh;
@@ -1831,7 +1831,7 @@ td.matrix-diag { background: transparent; color: var(--text-muted); }
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'DejaVu Sans', system-ui, sans-serif;
 }
 
 .keypad-btn:hover {
@@ -1880,7 +1880,7 @@ td.matrix-diag { background: transparent; color: var(--text-muted); }
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'DejaVu Sans', system-ui, sans-serif;
 }
 
 .record-btn {
@@ -1999,7 +1999,7 @@ td.matrix-diag { background: transparent; color: var(--text-muted); }
     font-size: 10px;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'DejaVu Sans', system-ui, sans-serif;
 }
 
 .viz-tab:hover {
