@@ -63,10 +63,14 @@ class OfflineBundle(private val context: Context) {
         joinToString("") { "%02x".format(it) }
 
     /**
-     * Store a session's observation bundle (encrypted).
+     * Store one observation bundle (encrypted).
+     *
+     * A session emits a new commitment every 30 s. Each commitment must be
+     * preserved, so the filename includes a unique suffix rather than
+     * overwriting the previous bundle for the same session.
      */
     fun storeBundle(sessionId: String, json: String) {
-        val file = File(bundlesDir, "bundle_${sessionId}.enc")
+        val file = File(bundlesDir, "bundle_${sessionId}_${System.nanoTime()}.enc")
         EncryptedFile.Builder(
             context, file, masterKey,
             EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB

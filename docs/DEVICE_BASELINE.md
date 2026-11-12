@@ -21,7 +21,7 @@ Built, installed, and run from `platform/android`.
 | BLE scanning | `onScannerRegistered() status=0`; no scan failure |
 | Mesh devices | 0 (no second device in range; peer test not performed) |
 | PIN UX | four digits fill the dots, Start enables, session starts |
-| Camera preview | grey/black in the screenshot; frames were still hashed, so the preview needs a visual check |
+| Camera preview | **confirmed working** after switching `PreviewView` to `COMPATIBLE` (TextureView); a live frame showed the laptop keyboard. A later launch was black because the phone was lying on its back camera. |
 
 ### Bugs found and fixed during this run
 
@@ -36,6 +36,13 @@ Built, installed, and run from `platform/android`.
    camera `AndroidView` is hidden while the overlay is open. This also makes the
    PIN flow testable with Compose UI tests.
 4. **Mesh count text overflowed** at 48 sp on a 720 px screen; reduced to 24 sp.
+5. **Camera preview was black** with the default `PreviewView` `PERFORMANCE`
+   mode (`SurfaceView`) inside Compose. Switching to `COMPATIBLE` (TextureView)
+   rendered the preview correctly.
+6. **Repeated BLE observation bundles crashed.** `storeBundle` used
+   `bundle_<sessionId>.enc`, so the second 30 s commitment hit the same
+   `EncryptedFile` overwrite error. Bundles now get a unique suffix and all
+   observations are preserved.
 
 ### Instrumented tests
 

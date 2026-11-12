@@ -232,7 +232,7 @@ def test_duress_nonce_search_terminates():
 # ---------------------------------------------------------------------------
 # 10. Full integration flow
 # ---------------------------------------------------------------------------
-def test_full_flow():
+def test_full_flow(monkeypatch):
     """Derive two different passphrases (one normal, one duress). 
     Verify the duress one is detected, normal one is not."""
     from realpeep.duress_keys import DuressKeyDerivation
@@ -240,8 +240,21 @@ def test_full_flow():
     dkd = DuressKeyDerivation(salt=b'testsalt', notary_secret=b'secret' * 4,
                               marker_bits=8)
 
+    # A random normal nonce has a 1/256 chance of a false positive with
+    # marker_bits=8. Pin the RNG to a known non-matching nonce so this
+    # integration test is deterministic.
+    _, pub_probe, _ = dkd.derive_normal("everyday passphrase")
+    for counter in range(1000):
+        candidate = counter.to_bytes(32, "big")
+        if not dkd.detect(pub_probe, candidate):
+            break
+    else:  # pragma: no cover
+        raise AssertionError("could not find a non-matching nonce")
+    monkeypatch.setattr("realpeep.duress_keys.os.urandom", lambda _n: candidate)
+
     # Normal derivation
     priv_n, pub_n, nonce_n = dkd.derive_normal("everyday passphrase")
+    assert nonce_n == candidate
     assert not dkd.detect(pub_n, nonce_n), \
         "normal passphrase should NOT trigger duress"
 

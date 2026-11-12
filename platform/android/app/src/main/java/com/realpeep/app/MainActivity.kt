@@ -48,7 +48,12 @@ class MainActivity : ComponentActivity() {
         offlineBundle = OfflineBundle(this)
         frameCaptureService = FrameCaptureService(this, this)
         audioRecorder = AudioRecorder()
-        previewView = PreviewView(this)
+        // COMPATIBLE uses a TextureView instead of a SurfaceView. SurfaceView
+        // inside Compose AndroidView can render behind the Compose surface on
+        // some devices (the Moto G7 Power showed a black preview).
+        previewView = PreviewView(this).apply {
+            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+        }
 
         // Wire scanner callback
         bleScanner.onCommitment = { bundle ->

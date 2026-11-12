@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.realpeep.app.storage.OfflineBundle
 import org.json.JSONObject
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -17,5 +18,17 @@ class OfflineBundleTest {
 
         bundle.storeSession(JSONObject().put("session", "first"))
         bundle.storeSession(JSONObject().put("session", "second"))
+    }
+
+    @Test
+    fun repeatedObservationBundlesArePreserved() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val bundle = OfflineBundle(context)
+        bundle.clear()
+
+        bundle.storeBundle("session-a", JSONObject().put("n", 1).toString())
+        bundle.storeBundle("session-a", JSONObject().put("n", 2).toString())
+
+        assertEquals(2, bundle.loadBundles().size)
     }
 }

@@ -34,7 +34,7 @@ This is deliberately a **hardening slice**, not a four-layer rewrite.
 | 4 | Device test harness | **Done** | `scripts/android-device-test.sh` installs, grants permissions, launches, and can open the JS baseline via `adb reverse` |
 | 5 | BLE advertisement size | **Implemented; needs device validation** | capability-gated extended advertising with one rotating set; 21-byte unsigned legacy fallback; scanner accepts both |
 | 6 | Normal/duress PIN enrollment | **Next** | two PINs, explicit mode, no visible difference; still demo-grade until notary exists |
-| 7 | Instrumented smoke test | **Partial** | 2 instrumented tests pass on the Moto (PIN flow, session overwrite); camera/audio/BLE instrumentation still to add |
+| 7 | Instrumented smoke test | **Partial** | 3 instrumented tests pass on the Moto (PIN flow, session overwrite, bundle preservation); camera/audio/BLE instrumentation still to add |
 | 8 | Rust core primitives | **Done (isolated)** | `rust/realpeep-core` with 20 tests, fmt/clippy clean; not wired to app |
 | 9 | Rust CI | **Done** | `.github/workflows/rust.yml` runs fmt/clippy/test on `rust/**` |
 | 10 | Rust FFI/WASM | **Planned** | UniFFI/JNI + wasm-bindgen; vectors match Python/JS/Kotlin |
