@@ -3,7 +3,7 @@
 **Last verified:** 12 November 2026 on the Moto G7 Power (Android 10) and Pixel 8a (Android 17)  
 **Build:** `./gradlew :app:assembleDebug` — success (debug APK ~65 MB, four native ABIs)  
 **Unit tests:** `./gradlew :app:testDebugUnitTest` — **53 tests, 0 failures**  
-**Instrumented tests:** 6 on the Moto and 6 on the API 29 x86_64 emulator; 4 on the Pixel (PIN Compose test skipped on API 37) — see [docs/DEVICE_BASELINE.md](../../docs/DEVICE_BASELINE.md)  
+**Instrumented tests:** 7 on the Moto and 7 on the API 29 x86_64 emulator; 4 on the Pixel (PIN Compose test skipped on API 37) — see [docs/DEVICE_BASELINE.md](../../docs/DEVICE_BASELINE.md)  
 **CI:** `.github/workflows/android.yml` builds the debug APK and runs the unit tests on changes under `platform/android/`
 
 Toolchain: `minSdk 29`, `compileSdk 34`, `targetSdk 34`, AGP 8.5.2, Kotlin 2.0.10,
@@ -33,6 +33,9 @@ Rust `realpeep-core` (arm64-v8a, armeabi-v7a, x86_64, x86 JNI).
 - Hardware-backed Android Keystore attestation over the session id and
   ephemeral public key; StrongBox is preferred, TEE/secure hardware is the
   fallback. The Moto reports `hardwareBacked=true, strongBox=false`.
+- Mock OpenTimestamps client/calendar: POST `/digest`, GET `/timestamp/<hex>`,
+  Ed25519 mock token, stored encrypted after session stop. Not a real Bitcoin
+  anchor; see `docs/OPENTIMESTAMPS_MOCK.md`.
 - Android Keystore-backed AES-256-GCM encrypted offline storage.
 - BouncyCastle Ed25519 software keys (`EphemeralKey`) and PIN-derived keys
   (`DuressKeys`, 8-bit marker, PBKDF2 100k).
@@ -85,7 +88,9 @@ Rust `realpeep-core` (arm64-v8a, armeabi-v7a, x86_64, x86 JNI).
    `ServiceCompat.startForeground(..., CONNECTED_DEVICE)`. On Android 13+ the
    notification may still be hidden if the user denies it; recording is not
    blocked.
-7. **Pixel 16 KB compatibility is fixed.** CameraX 1.4.2 provides 16 KB-aligned
+7. **StrongBox cannot be exercised on the emulator.** The emulator/TEE path is
+   tested; a real StrongBox requires the Pixel or another certified device.
+8. **Pixel 16 KB compatibility is fixed.** CameraX 1.4.2 provides 16 KB-aligned
    native libraries; the Android CI step runs `scripts/check-16kb.sh` on the
    debug APK. Target SDK is still 34 rather than Android 17/API 37.
 

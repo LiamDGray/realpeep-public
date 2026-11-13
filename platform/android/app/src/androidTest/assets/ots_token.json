@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "calendar": "mock-ots",
+  "digest": "1111111111111111111111111111111111111111111111111111111111111111",
+  "commitment": "28da10492c2194353f039b5bf16cb9e815f5699886a0fabf04a23ba9d213c6fe",
+  "height": 800000,
+  "txid": "5413df498f33006f9af7be16867df45fdc753dda6ddc9d5ef28ea99b9314f21d",
+  "timestamp": 1760000000,
+  "signature": "zcUpmZcf+59/QfgD9eFpp9bKvv/7XPvf5Dx3M4WcXyFhzGQKYSzbUqb6/x+PjYyNzyAcBwEewl5k0QrjhSpMDQ=="
+}

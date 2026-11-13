@@ -82,6 +82,19 @@ class OfflineBundle(private val context: Context) {
     /**
      * Store session metadata (encrypted).
      */
+    fun storeOts(sessionId: String, json: String) {
+        val file = File(bundlesDir, "ots_${sessionId}.enc")
+        if (file.exists() && !file.delete()) {
+            throw IllegalStateException("could not replace ${file.name}")
+        }
+        EncryptedFile.Builder(
+            context, file, masterKey,
+            EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+        ).build().apply {
+            openFileOutput().use { it.write(json.toByteArray()) }
+        }
+    }
+
     fun storeSession(sessionData: JSONObject) {
         val file = File(bundlesDir, SESSION_FILE)
         // EncryptedFile.openFileOutput() refuses to overwrite an existing file.

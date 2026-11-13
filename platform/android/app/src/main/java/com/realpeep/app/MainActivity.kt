@@ -19,6 +19,7 @@ import com.realpeep.app.mesh.BleScanner
 import com.realpeep.app.mesh.MeshForegroundService
 import com.realpeep.app.mesh.ObservationBundle
 import com.realpeep.app.model.Session
+import com.realpeep.app.ots.OpenTimestampsClient
 import com.realpeep.app.storage.OfflineBundle
 import com.realpeep.app.ui.screens.RecordScreen
 import kotlinx.coroutines.launch
@@ -212,6 +213,25 @@ class MainActivity : ComponentActivity() {
         Log.i(TAG, "Session ${s.sessionId} ended. " +
                 "Frames: $totalFrames, Audio chunks: $totalAudioChunks, " +
                 "Mesh devices: ${observationBundles.size}")
+
+        // Mock OpenTimestamps anchor. The calendar URL is overridable with
+        // `am start --es ots_url ...`; the emulator default reaches the host.
+        val otsDigest = MessageDigest.getInstance("SHA-256").run {
+            update(frameMerkleRoot)
+            update(audioMerkleRoot)
+            update(s.sessionId.toByteArray())
+            digest()
+        }
+        val otsUrl = intent.getStringExtra("ots_url") ?: "http://10.0.2.2:8098"
+        lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val token = OpenTimestampsClient().stamp(otsDigest, otsUrl)
+                offlineBundle.storeOts(s.sessionId, token.toJson().toString())
+                Log.i(TAG, "Mock OTS anchored session ${s.sessionId} height=${token.height}")
+            } catch (error: Exception) {
+                Log.w(TAG, "Mock OTS unavailable for ${s.sessionId}: ${error.message}")
+            }
+        }
 
         observationBundles.clear()
     }

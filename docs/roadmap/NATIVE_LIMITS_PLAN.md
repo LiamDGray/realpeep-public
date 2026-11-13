@@ -57,7 +57,17 @@ app records the attestation; the test reports whether StrongBox is available.
 This binds a hardware attestation to the session key but does **not** replace
 the Ed25519 proof or claim the demo TEE key is a hardware root.
 
-## Phase 4 — Remaining limits
+### StrongBox emulator
+
+There is no official Android Emulator StrongBox. On an emulator the Keystore
+provider is software/TEE-emulated; `setIsStrongBoxBacked(true)` is not backed by
+a StrongBox secure element, so the code falls back. AOSP Cuttlefish has a
+virtual `secure_env`/keymaster implementation, but that is a virtual secure
+environment, not a StrongBox-certified tamper-resistant element. StrongBox
+therefore requires real hardware (the Pixel 8a) or a dedicated secure element;
+we did not represent emulator/TEE behavior as StrongBox.
+
+## Phase 4 — Remaining limits — **Mock OTS done; real OTS remains**
 
 Record, rather than fake:
 
@@ -68,8 +78,9 @@ Record, rather than fake:
   not consume a duress tag. Adding a public input and regenerating the dev zkey
   is a separate circuit/trusted-setup change.
 - **Mesh verification/OTS:** full extended beacons now verify their Ed25519
-  signature; the short legacy beacon remains unsigned. Upload/OpenTimestamps
-  remain future work.
+  signature; the short legacy beacon remains unsigned. A mock OpenTimestamps
+  calendar/client exists and is device-tested; real `.ots`/Bitcoin anchoring
+  remains future work.
 - **Android 17 target:** 16 KB is fixed; `targetSdk 34` stays.
 - **Compose UI test on API 37:** skipped on Pixel due Compose 1.6 harness; update
   separately when the toolchain moves.

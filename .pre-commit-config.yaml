@@ -11,7 +11,7 @@ repos:
         args: ['--baseline', '.secrets.baseline']
         # The generated, minified zk-kit bundle is high-entropy by nature and
         # takes minutes to scan; it contains no credentials.
-        exclude: ^demo/vendor/.*\.bundle\.js$
+        exclude: ^(demo/vendor/.*\.bundle\.js|platform/android/app/src/androidTest/assets/ots_token\.json)$
         stages: [pre-commit, pre-push]
   - repo: local
     hooks:

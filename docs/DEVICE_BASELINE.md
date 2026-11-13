@@ -182,10 +182,21 @@ SDK/AGP change. The Pixel now launches with no 16 KB warning, and
 ## x86_64 emulator validation
 
 An API 29 (`pixel29`) x86_64 AVD booted with KVM. `connectedDebugAndroidTest`
-ran **6/6** tests, including the native SHA-256/frame/Merkle parity tests and
-the hardware-attestation test. This validates the x86_64 `librealpeep_core.so`
+ran **7/7** tests, including the native SHA-256/frame/Merkle parity tests, the
+hardware-attestation test, and the mock-OTS token verification test. This validates the x86_64 `librealpeep_core.so`
 and the non-arm64 `jniLibs` packaging; emulator camera/BLE behavior is not
 claimed.
+
+## Mock OpenTimestamps on the Moto
+
+The mock calendar/client anchored a session over `adb reverse`:
+
+```text
+RealPeep.Main: Mock OTS anchored session 8ac0... height=800000
+```
+
+This is a mock Ed25519 token, not a Bitcoin anchor; see
+[OPENTIMESTAMPS_MOCK.md](OPENTIMESTAMPS_MOCK.md).
 
 ## Hardware attestation on the Moto
 
